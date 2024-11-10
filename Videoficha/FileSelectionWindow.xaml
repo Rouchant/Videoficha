@@ -1,0 +1,68 @@
+﻿<Window x:Class="Videoficha.FileSelectionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Seleccionar Archivos" SizeToContent="Height" Width="400" 
+        Background="#f0f0f0">
+    <StackPanel Margin="20">
+        <!-- Título -->
+        <TextBlock Text="Selecciona tus archivos" FontSize="18" FontWeight="Bold" Margin="0,0,0,20" HorizontalAlignment="Center" />
+
+        <!-- Botón para seleccionar video -->
+        <Button Click="SelectVideoButton_Click" Width="180" Margin="0,10" Padding="10" Background="#4CAF50" HorizontalAlignment="Center">
+            <Button.Style>
+                <Style TargetType="Button">
+                    <Style.Triggers>
+                        <!-- Efecto al pasar el ratón sobre el botón -->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#45a049"/>
+                            <Setter Property="BorderBrush" Value="#388E3C"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+            <TextBlock Text="Seleccionar Video" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White"/>
+        </Button>
+
+        <!-- Etiqueta que muestra el nombre del video seleccionado -->
+        <Label x:Name="VideoPathLabel" Content="No se ha seleccionado video" Margin="0,10,0,20" HorizontalAlignment="Center" Foreground="#555" />
+
+        <!-- Botón para seleccionar PDF -->
+        <Button Click="SelectPdfButton_Click" Width="180" Margin="0,10" Padding="10" Background="#4CAF50" HorizontalAlignment="Center">
+            <Button.Style>
+                <Style TargetType="Button">
+                    <Style.Triggers>
+                        <!-- Efecto al pasar el ratón sobre el botón -->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#1976D2"/>
+                            <Setter Property="BorderBrush" Value="#1565C0"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+            <TextBlock Text="Seleccionar PDF" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White"/>
+        </Button>
+
+        <!-- Etiqueta que muestra el nombre del PDF seleccionado -->
+        <Label x:Name="PdfPathLabel" Content="No se ha seleccionado PDF" Margin="0,10,0,20" HorizontalAlignment="Center" Foreground="#555" />
+
+        <!-- Botón OK -->
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="15">
+            <Button Content="OK" Click="OkButton_Click" Width="100" Height="35" Background="#0292D8" Foreground="White" BorderBrush="Blue" BorderThickness="1" Padding="10">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Style.Triggers>
+                            <!-- Efecto al pasar el ratón sobre el botón -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#45a049"/>
+                                <Setter Property="BorderBrush" Value="#388E3C"/>
+                                <Setter Property="Cursor" Value="Hand"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </StackPanel>
+    </StackPanel>
+</Window>

@@ -1,0 +1,6 @@
+﻿<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Publish Videoficha to folder (4)" type="DotNetFolderPublish" factoryName="Publish to folder">
+    <riderPublish configuration="Release" platform="Any CPU" runtime="Portable" target_folder="$PROJECT_DIR$/Videoficha/bin/Release/net6.0-windows/publish" target_framework="net6.0-windows" uuid_high="-4519121008439050179" uuid_low="-7599552233685486479" />
+    <method v="2" />
+  </configuration>
+</component>

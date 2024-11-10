@@ -1,0 +1,49 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <UseWPF>true</UseWPF>
+        <RootNamespace>Videoficha</RootNamespace>
+        <ApplicationIcon>icon.ico</ApplicationIcon>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2895-prerelease" />
+      <PackageReference Include="Microsoft.Windows.Compatibility" Version="9.0.0-rc.2.24474.4" />
+      <PackageReference Include="System.Management" Version="9.0.0-rc.2.24473.5" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Fonts\FormaDJRDisplay-Regular.ttf" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="sample\sample.pdf">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <None Remove="Fonts\FormaDJRMicro-Bold.ttf" />
+      <Resource Include="Fonts\FormaDJRMicro-Bold.ttf">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Fonts\FormaDJRMicro-Regular.ttf" />
+      <Resource Include="Fonts\FormaDJRMicro-Regular.ttf">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="sample\HP.wmv" />
+      <Content Include="sample\HP.wmv">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <None Remove="sample\sample.pdf" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="pc_computer_screen_desktop_icon_131250.ico" />
+      <Content Include="icon.ico">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+
+</Project>

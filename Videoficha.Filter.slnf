@@ -1,0 +1,8 @@
+﻿{
+  "solution": {
+    "path": "Videoficha.sln",
+    "projects": [
+      "Videoficha\\Videoficha.csproj"
+    ]
+  }
+}
