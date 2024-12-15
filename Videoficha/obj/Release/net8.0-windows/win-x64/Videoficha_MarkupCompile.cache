@@ -10,11 +10,11 @@ none
 false
 TRACE;RELEASE;NET;NET8_0;NETCOREAPP
 C:\Users\jmema\RiderProjects\Videoficha - copia\Videoficha\App.xaml
-6-2044081460
-4-1638409792
-91727687313
+6182481327
+81807545445
+9-23910412
 227-392180459
-FileSelectionWindow.xaml;LeerFicha.xaml;MainWindow.xaml;SetPriceWindow.xaml;SystemInfoEditWindow.xaml;SystemInfoWindow.xaml;
+FileSelectionWindow.xaml;LeerFicha.xaml;MainWindow.xaml;PrecioConfigWindow.xaml;SystemInfoEditWindow.xaml;SystemInfoWindow.xaml;
 
 False
 

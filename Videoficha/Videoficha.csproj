@@ -36,6 +36,22 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
       <None Remove="sample\sample.pdf" />
+      <None Remove="tarjetas\CMR.png" />
+      <Content Include="tarjetas\cmr.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <None Remove="tarjetas\Cencosud.png" />
+      <Content Include="tarjetas\cencosud.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <None Remove="tarjetas\Ripley.png" />
+      <Content Include="tarjetas\ripley.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <None Remove="tarjetas\default.png" />
+      <Content Include="tarjetas\default.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
     <ItemGroup>

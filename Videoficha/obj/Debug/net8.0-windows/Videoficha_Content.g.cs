@@ -9,6 +9,10 @@
 
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("sample/sample.pdf")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("sample/hp.wmv")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("tarjetas/cmr.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("tarjetas/cencosud.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("tarjetas/ripley.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("tarjetas/default.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icon.ico")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("webview2loader.dll")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("webview2loader.dll")]

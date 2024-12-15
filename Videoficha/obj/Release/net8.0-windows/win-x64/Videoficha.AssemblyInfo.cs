@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Videoficha")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+056e5b18e934fb7619345a11a2b3e0cd9cd1c873")]
 [assembly: System.Reflection.AssemblyProductAttribute("Videoficha")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Videoficha")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

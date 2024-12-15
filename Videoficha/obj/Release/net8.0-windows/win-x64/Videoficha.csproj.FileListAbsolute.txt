@@ -551,6 +551,10 @@ C:\Users\jmema\RiderProjects\Videoficha - copia\Videoficha\obj\Release\net8.0-wi
 C:\Users\jmema\RiderProjects\Videoficha - copia\Videoficha\obj\Release\net8.0-windows\win-x64\ref\Videoficha.dll
 C:\Users\jmema\RiderProjects\Videoficha - copia\Videoficha\obj\Release\net8.0-windows\win-x64\SystemInfoEditWindow.baml
 C:\Users\jmema\RiderProjects\Videoficha - copia\Videoficha\obj\Release\net8.0-windows\win-x64\SystemInfoEditWindow.g.cs
-C:\Users\jmema\RiderProjects\Videoficha - copia\Videoficha\obj\Release\net8.0-windows\win-x64\SetPriceWindow.baml
-C:\Users\jmema\RiderProjects\Videoficha - copia\Videoficha\obj\Release\net8.0-windows\win-x64\SetPriceWindow.g.cs
-C:\Users\jmema\RiderProjects\Videoficha - copia\Videoficha\obj\Release\net8.0-windows\win-x64\Videoficha_MarkupCompile.lref
+C:\Users\jmema\RiderProjects\Videoficha - copia\Videoficha\obj\Release\net8.0-windows\win-x64\PrecioConfigWindow.baml
+C:\Users\jmema\RiderProjects\Videoficha - copia\Videoficha\obj\Release\net8.0-windows\win-x64\PrecioConfigWindow.g.cs
+C:\Users\jmema\RiderProjects\Videoficha - copia\Videoficha\obj\Release\net8.0-windows\win-x64\Videoficha.sourcelink.json
+C:\Users\jmema\RiderProjects\Videoficha - copia\Videoficha\bin\Release\net8.0-windows\win-x64\tarjetas\cmr.png
+C:\Users\jmema\RiderProjects\Videoficha - copia\Videoficha\bin\Release\net8.0-windows\win-x64\tarjetas\cencosud.png
+C:\Users\jmema\RiderProjects\Videoficha - copia\Videoficha\bin\Release\net8.0-windows\win-x64\tarjetas\ripley.png
+C:\Users\jmema\RiderProjects\Videoficha - copia\Videoficha\bin\Release\net8.0-windows\win-x64\tarjetas\default.png

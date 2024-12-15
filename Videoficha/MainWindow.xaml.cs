@@ -8,7 +8,9 @@ using System.Management;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 
 namespace Videoficha
 {
@@ -19,11 +21,17 @@ namespace Videoficha
         private const uint ES_CONTINUOUS = 0x80000000;
         private const uint ES_SYSTEM_REQUIRED = 0x00000001;
         private const uint ES_DISPLAY_REQUIRED = 0x00000002;
+
         private List<string> systemInfo;
-        private const string ConfigFolderName = "config"; // Nombre de la carpeta de configuración
-        private string ConfigFolderPath; // Ruta completa de la carpeta de configuración
+        private const string ConfigFolderName = "config";
+        private string ConfigFolderPath;
         private string currentVideoPath;
-        
+        private string precioNormal;
+        private string precioOferta;
+        private string precioExclusivoTarjeta;
+        private bool mostrarPrecio;
+        private int precioDisplayMode;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -32,63 +40,197 @@ namespace Videoficha
             this.Loaded += MainWindow_Loaded;
             this.Closing += MainWindow_Closing;
 
-            // Ruta completa de la carpeta config
             ConfigFolderPath = Path.Combine(Environment.CurrentDirectory, ConfigFolderName);
-
-            // Crear la carpeta config si no existe
             CreateConfigFolder();
-        
-            // Suscribirse al evento PowerModeChanged
+            LoadPrecioConfig();
             SystemEvents.PowerModeChanged += OnPowerModeChanged;
+        }
+
+        private void CreateConfigFolder()
+        {
+            if (!Directory.Exists(ConfigFolderPath))
+            {
+                try
+                {
+                    Directory.CreateDirectory(ConfigFolderPath);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al crear la carpeta config: {ex.Message}");
+                }
+            }
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            // Verifica si se está presionando Control y la flecha arriba
             if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
             {
-                if (e.Key == Key.S)
-                {
-                    // Llama al método para mostrar la ventana de selección de archivos
-                    ShowFileSelectionWindow();
-                }
-                else if (e.Key == Key.I)
-                {
-                    // Abre la ventana de edición de información del sistema
-                    ShowSystemInfoEditWindow();
-                }
+                if (e.Key == Key.S) ShowFileSelectionWindow();
+                else if (e.Key == Key.I) ShowSystemInfoEditWindow();
+                else if (e.Key == Key.P) ShowPrecioConfigWindow();
             }
         }
 
         private void ShowSystemInfoEditWindow()
         {
-            var systemInfoEditWindow = new SystemInfoEditWindow(systemInfo, Path.Combine(ConfigFolderPath, "systemInfo.txt"));
-            systemInfoEditWindow.Owner = this;
+            var systemInfoEditWindow = new SystemInfoEditWindow(systemInfo, Path.Combine(ConfigFolderPath, "systemInfo.txt"))
+            {
+                Owner = this
+            };
             systemInfoEditWindow.ShowDialog();
         }
 
         private void ShowFileSelectionWindow()
         {
-            FileSelectionWindow fileSelectionWindow = new FileSelectionWindow
-            {
-                Owner = this
-            };
+            var fileSelectionWindow = new FileSelectionWindow { Owner = this };
+            if (fileSelectionWindow.ShowDialog() == true) ProcessSelectedFiles(fileSelectionWindow);
+        }
 
-            if (fileSelectionWindow.ShowDialog() == true)
+        private void ShowPrecioConfigWindow()
+        {
+            try
             {
-                ProcessSelectedFiles(fileSelectionWindow);
+                var precioConfigWindow = new PrecioConfigWindow(precioNormal, precioOferta, precioExclusivoTarjeta, mostrarPrecio, precioDisplayMode)
+                {
+                    Owner = this
+                };
+
+                if (precioConfigWindow.ShowDialog() == true)
+                {
+                    precioNormal = precioConfigWindow.PrecioNormal;
+                    precioOferta = precioConfigWindow.PrecioOferta;
+                    precioExclusivoTarjeta = precioConfigWindow.PrecioExclusivoTarjeta;
+                    mostrarPrecio = precioConfigWindow.MostrarPrecio;
+                    precioDisplayMode = precioConfigWindow.PrecioDisplayMode;
+
+                    UpdatePrecioDisplay();
+                    SavePrecioConfig();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al mostrar la ventana de configuración de precios: {ex.Message}");
             }
         }
 
-        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        private void LoadPrecioConfig()
+        {
+            try
+            {
+                string configFilePath = Path.Combine(ConfigFolderPath, "precios.txt");
+                if (File.Exists(configFilePath))
+                {
+                    string[] configValues = File.ReadAllText(configFilePath).Split('|');
+                    if (configValues.Length == 5)
+                    {
+                        precioNormal = configValues[0];
+                        precioOferta = configValues[1];
+                        precioExclusivoTarjeta = configValues[2];
+                        precioDisplayMode = int.Parse(configValues[3]);
+                        mostrarPrecio = configValues[4].ToLower() == "true";
+                    }
+                    else
+                    {
+                        MessageBox.Show("Error: El archivo de configuración está dañado o tiene un formato incorrecto.");
+                    }
+                }
+                else
+                {
+                    string defaultConfig = "$999.990|$999.990|$999.990|0|false";
+                    File.WriteAllText(configFilePath, defaultConfig);
+                    precioNormal = precioOferta = precioExclusivoTarjeta = "$999.990";
+                    precioDisplayMode = 0;
+                    mostrarPrecio = false;
+                }
+                UpdatePrecioDisplay();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar la configuración de precios: {ex.Message}");
+            }
+        }
 
+        private void UpdatePrecioDisplay()
+{
+    try
+    {
+        if (!mostrarPrecio)
+        {
+            PrecioPanelNormalOferta.Visibility = Visibility.Collapsed;
+            PrecioPanelNormalOfertaExclusivo.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(precioNormal) && !string.IsNullOrWhiteSpace(precioOferta))
+        {
+            PrecioNormalLabel.Text = $"Precio Normal: {precioNormal}";
+            PrecioOfertaLabel.Content = $"Precio Oferta: {precioOferta}";
+            PrecioNormalLabelExclusivo.Text = $"Precio Normal: {precioNormal}";
+            PrecioOfertaLabelExclusivo.Content = $"Precio Oferta: {precioOferta}";
+        }
+        else
+        {
+            MessageBox.Show("Error: Los valores de los precios no son válidos.");
+            return;
+        }
+
+        PrecioPanelNormalOferta.Visibility = Visibility.Collapsed;
+        PrecioPanelNormalOfertaExclusivo.Visibility = Visibility.Collapsed;
+
+        if (precioDisplayMode == 1 && !string.IsNullOrWhiteSpace(precioExclusivoTarjeta))
+        {
+            PrecioExclusivoTarjetaLabel.Content = $"Precio Exclusivo Tarjeta: {precioExclusivoTarjeta}";
+            PrecioPanelNormalOfertaExclusivo.Visibility = Visibility.Visible;
+            PrecioNormalLabelExclusivo.TextDecorations = TextDecorations.Strikethrough;
+        }
+        else
+        {
+            PrecioPanelNormalOferta.Visibility = Visibility.Visible;
+            PrecioNormalLabel.TextDecorations = null;
+        }
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show($"Error al actualizar los precios: {ex.Message}");
+    }
+}
+
+        private void SavePrecioConfig()
+        {
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(precioNormal) && !string.IsNullOrWhiteSpace(precioOferta) && !string.IsNullOrWhiteSpace(precioExclusivoTarjeta))
+                {
+                    string precioConfigData = $"{precioNormal}|{precioOferta}|{precioExclusivoTarjeta}|{precioDisplayMode}|{mostrarPrecio}";
+                    File.WriteAllText(Path.Combine(ConfigFolderPath, "precios.txt"), precioConfigData);
+                }
+                else
+                {
+                    MessageBox.Show("Error: Los precios no pueden estar vacíos.");
+                }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                MessageBox.Show($"Error: No tienes permisos para guardar la configuración. {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al guardar la configuración de precios: {ex.Message}");
+            }
+        }
+
+        private void LogError(Exception ex)
+        {
+            File.AppendAllText("errorLog.txt", $"{DateTime.Now}: {ex.Message}\n{ex.StackTrace}\n\n");
+        }
+
+        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             LoadingLabel.Visibility = Visibility.Visible;
-
+            UpdatePrecioDisplay();
             SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED);
 
             systemInfo = LoadSystemInfo();
-
             if (systemInfo == null || !systemInfo.Any())
             {
                 systemInfo = await Task.Run(() => GetSystemInfo());
@@ -96,7 +238,6 @@ namespace Videoficha
             }
 
             currentVideoPath = LoadVideoSelection();
-
             if (!string.IsNullOrEmpty(currentVideoPath) && File.Exists(currentVideoPath))
             {
                 PlaySelectedVideo(currentVideoPath);
@@ -115,33 +256,24 @@ namespace Videoficha
             this.KeyDown -= Window_KeyDown;
             this.Loaded -= MainWindow_Loaded;
             this.Closing -= MainWindow_Closing;
+            Application.Current.Shutdown();
+            Environment.Exit(0);
         }
 
         private void OnPowerModeChanged(object sender, PowerModeChangedEventArgs e)
         {
             if (e.Mode == PowerModes.Resume && !string.IsNullOrEmpty(currentVideoPath))
             {
-                // Asegúrate de detener el video antes de reiniciar
                 videoPlayer.Stop();
-
-                // Reconfigura la fuente y reproduce
                 videoPlayer.Source = new Uri(currentVideoPath);
                 videoPlayer.Play();
             }
         }
 
-        
         private void SelectFiles()
         {
-            FileSelectionWindow fileSelectionWindow = new FileSelectionWindow
-            {
-                Owner = this
-            };
-
-            if (fileSelectionWindow.ShowDialog() == true)
-            {
-                ProcessSelectedFiles(fileSelectionWindow);
-            }
+            var fileSelectionWindow = new FileSelectionWindow { Owner = this };
+            if (fileSelectionWindow.ShowDialog() == true) ProcessSelectedFiles(fileSelectionWindow);
             else
             {
                 PlayDefaultVideo();
@@ -151,27 +283,21 @@ namespace Videoficha
 
         private void ProcessSelectedFiles(FileSelectionWindow fileSelectionWindow)
         {
-            string selectedVideoFile = fileSelectionWindow.VideoFilePath;
-            string selectedPDFFile = fileSelectionWindow.OtherFilePath;
-
-            if (!string.IsNullOrEmpty(selectedVideoFile))
+            if (!string.IsNullOrEmpty(fileSelectionWindow.VideoFilePath))
             {
-                SaveVideoSelection(selectedVideoFile);
-                PlaySelectedVideo(selectedVideoFile);
+                SaveVideoSelection(fileSelectionWindow.VideoFilePath);
+                PlaySelectedVideo(fileSelectionWindow.VideoFilePath);
             }
 
-            if (!string.IsNullOrEmpty(selectedPDFFile))
+            if (!string.IsNullOrEmpty(fileSelectionWindow.OtherFilePath))
             {
-                SavePDFSelection(selectedPDFFile);
+                SavePDFSelection(fileSelectionWindow.OtherFilePath);
             }
         }
 
-
         private void PlayDefaultVideo()
         {
-            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string defaultVideoPath = Path.Combine(baseDirectory, "sample", "HP.wmv");
-
+            string defaultVideoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sample", "HP.wmv");
             if (File.Exists(defaultVideoPath))
             {
                 videoPlayer.Source = new Uri(defaultVideoPath);
@@ -181,13 +307,10 @@ namespace Videoficha
 
         private void ShowDefaultPDF()
         {
-            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string defaultPDFPath = Path.Combine(baseDirectory, "sample", "sample.pdf");
-
+            string defaultPDFPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sample", "sample.pdf");
             if (File.Exists(defaultPDFPath))
             {
-                LeerFicha leerFichaWindow = new LeerFicha(defaultPDFPath);
-                leerFichaWindow.Owner = this;
+                var leerFichaWindow = new LeerFicha(defaultPDFPath) { Owner = this };
                 leerFichaWindow.ShowDialog();
             }
         }
@@ -195,7 +318,6 @@ namespace Videoficha
         private void PlaySelectedVideo(string videoPath)
         {
             currentVideoPath = videoPath;
-
             if (videoPlayer != null && !string.IsNullOrEmpty(videoPath))
             {
                 videoPlayer.Source = new Uri(videoPath);
@@ -219,6 +341,7 @@ namespace Videoficha
                 MessageBox.Show($"Error al guardar la selección del video: {ex.Message}");
             }
         }
+
         private void SavePDFSelection(string pdfPath)
         {
             try
@@ -231,7 +354,6 @@ namespace Videoficha
             }
         }
 
-        
         private string LoadVideoSelection()
         {
             return File.Exists(Path.Combine(ConfigFolderPath, "videoSelection.txt"))
@@ -241,8 +363,8 @@ namespace Videoficha
 
         private string LoadPDFSelection()
         {
-            return File.Exists(Path.Combine(ConfigFolderPath, "pdfSelection.txt")) 
-                ? File.ReadAllText(Path.Combine(ConfigFolderPath, "pdfSelection.txt")) 
+            return File.Exists(Path.Combine(ConfigFolderPath, "pdfSelection.txt"))
+                ? File.ReadAllText(Path.Combine(ConfigFolderPath, "pdfSelection.txt"))
                 : string.Empty;
         }
 
@@ -257,8 +379,7 @@ namespace Videoficha
             string pdfPath = LoadPDFSelection();
             if (!string.IsNullOrEmpty(pdfPath))
             {
-                LeerFicha leerFichaWindow = new LeerFicha(pdfPath);
-                leerFichaWindow.Owner = this;
+                var leerFichaWindow = new LeerFicha(pdfPath) { Owner = this };
                 leerFichaWindow.ShowDialog();
             }
             else
@@ -267,77 +388,58 @@ namespace Videoficha
             }
         }
 
-
         private void ViewInfoButton_Click(object sender, RoutedEventArgs e)
         {
-            SystemInfoWindow systemInfoWindow = new SystemInfoWindow();
-            systemInfoWindow.Owner = this;
+            var systemInfoWindow = new SystemInfoWindow { Owner = this };
             systemInfoWindow.ShowDialog();
         }
 
         private List<string> GetSystemInfo()
         {
             var systemInfo = new List<string>();
-
             try
             {
-                // Obtener el modelo de la computadora
                 using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_ComputerSystem"))
                 {
-                    foreach (var item in searcher.Get())
-                    {
-                        systemInfo.Add(item["Model"].ToString());
-                    }
+                    foreach (var item in searcher.Get()) systemInfo.Add(item["Model"].ToString());
                 }
 
-                // Obtener el sistema operativo
                 using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem"))
                 {
-                    foreach (var item in searcher.Get())
-                    {
-                        systemInfo.Add(item["Caption"].ToString());
-                    }
+                    foreach (var item in searcher.Get()) systemInfo.Add(item["Caption"].ToString());
                 }
 
-                // Obtener el procesador
                 using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_Processor"))
                 {
-                    foreach (var item in searcher.Get())
-                    {
-                        systemInfo.Add(item["Name"].ToString());
-                    }
+                    foreach (var item in searcher.Get()) systemInfo.Add(item["Name"].ToString());
                 }
 
-                // Obtener la memoria RAM y redondearla al múltiplo de 2 más cercano
                 using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_ComputerSystem"))
                 {
                     foreach (var item in searcher.Get())
                     {
-                        var ramInGB = Math.Ceiling(Convert.ToDouble(item["TotalPhysicalMemory"]) / (1024 * 1024 * 1024)); // Convertir a GB
-                        ramInGB = (int)(Math.Round(ramInGB / 2.0) * 2); // Redondear al múltiplo de 2 más cercano
+                        var ramInGB = Math.Ceiling(Convert.ToDouble(item["TotalPhysicalMemory"]) / (1024 * 1024 * 1024));
+                        ramInGB = (int)(Math.Round(ramInGB / 2.0) * 2);
                         systemInfo.Add(ramInGB + " GB");
                     }
                 }
 
-                // Obtener el almacenamiento y redondear al múltiplo de 256 GB más cercano
                 using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_LogicalDisk WHERE DeviceID='C:'"))
                 {
                     foreach (var item in searcher.Get())
                     {
-                        var storageInGB = Math.Ceiling(Convert.ToDouble(item["Size"]) / (1024 * 1024 * 1024)); // Convertir a GB
-                        storageInGB = (int)(Math.Round(storageInGB / 256.0) * 256); // Redondear al múltiplo de 256 GB más cercano
+                        var storageInGB = Math.Ceiling(Convert.ToDouble(item["Size"]) / (1024 * 1024 * 1024));
+                        storageInGB = (int)(Math.Round(storageInGB / 256.0) * 256);
                         systemInfo.Add(storageInGB + " GB");
                     }
                 }
-                
-                // Obtener la tarjeta gráfica principal (usando la primera tarjeta gráfica encontrada)
+
                 using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_VideoController"))
                 {
                     foreach (var item in searcher.Get())
                     {
-                        // Seleccionamos la primera tarjeta gráfica encontrada como la principal
                         systemInfo.Add(item["Name"].ToString());
-                        break; // Solo tomamos la primera tarjeta gráfica
+                        break;
                     }
                 }
             }
@@ -366,21 +468,5 @@ namespace Videoficha
             string systemInfoPath = Path.Combine(ConfigFolderPath, "systemInfo.txt");
             return File.Exists(systemInfoPath) ? File.ReadLines(systemInfoPath).ToList() : null;
         }
-
-        private void CreateConfigFolder()
-        {
-            if (!Directory.Exists(ConfigFolderPath))
-            {
-                try
-                {
-                    Directory.CreateDirectory(ConfigFolderPath);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al crear la carpeta config: {ex.Message}");
-                }
-            }
-        }
-        
     }
 }
