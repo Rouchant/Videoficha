@@ -4583,11 +4583,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\jmema\\RiderProjects\\Videoficha - copia\\Videoficha\\Videoficha.csproj",
+      "projectUniqueName": "C:\\Users\\jmema\\Proyectos\\Videoficha\\Videoficha\\Videoficha.csproj",
       "projectName": "Videoficha",
-      "projectPath": "C:\\Users\\jmema\\RiderProjects\\Videoficha - copia\\Videoficha\\Videoficha.csproj",
+      "projectPath": "C:\\Users\\jmema\\Proyectos\\Videoficha\\Videoficha\\Videoficha.csproj",
       "packagesPath": "C:\\Users\\jmema\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\jmema\\RiderProjects\\Videoficha - copia\\Videoficha\\obj\\",
+      "outputPath": "C:\\Users\\jmema\\Proyectos\\Videoficha\\Videoficha\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\jmema\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -4651,7 +4651,7 @@
             "privateAssets": "none"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Users\\jmema\\.dotnet\\sdk\\8.0.401/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.420/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

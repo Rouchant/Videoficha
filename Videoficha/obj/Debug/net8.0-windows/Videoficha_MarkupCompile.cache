@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-C:\Users\jmema\RiderProjects\Videoficha - copia\Videoficha\obj\Debug\net8.0-windows\
+C:\Users\jmema\Proyectos\Videoficha\Videoficha\obj\Debug\net8.0-windows\
 Videoficha
 none
 false
 TRACE;DEBUG;NET;NET8_0;NETCOREAPP
-C:\Users\jmema\RiderProjects\Videoficha - copia\Videoficha\App.xaml
-6-2044081460
-6-880045664
-91727687313
-227-392180459
-FileSelectionWindow.xaml;LeerFicha.xaml;MainWindow.xaml;SetPriceWindow.xaml;SystemInfoEditWindow.xaml;SystemInfoWindow.xaml;
+C:\Users\jmema\Proyectos\Videoficha\Videoficha\App.xaml
+6534785300
+9-1464301939
+19-2046644968
+227-119608020
+Features\Kiosk\Views\FileSelectionWindow.xaml;Features\Kiosk\Views\LeerFicha.xaml;Features\Kiosk\Views\MainWindow.xaml;Features\Kiosk\Views\SetPriceWindow.xaml;Features\SystemDiagnostics\Views\SystemInfoEditWindow.xaml;Features\SystemDiagnostics\Views\SystemInfoWindow.xaml;
 
-True
+False
 

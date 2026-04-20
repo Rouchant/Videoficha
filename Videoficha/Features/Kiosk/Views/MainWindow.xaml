@@ -1,0 +1,58 @@
+<Window x:Class="Videoficha.Features.Kiosk.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Videoficha" 
+        WindowStyle="None" 
+        WindowState="Maximized" 
+        ResizeMode="NoResize" 
+        Topmost="True"
+        Closing="MainWindow_Closing"
+        KeyDown="Window_KeyDown">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <FontFamily x:Key="CustomFontRegular">pack://application:,,,/Assets/Fonts/FormaDJRMicro-Regular.ttf#Forma DJR Micro</FontFamily>
+        <FontFamily x:Key="CustomFontBold">pack://application:,,,/Assets/Fonts/FormaDJRMicro-Bold.ttf#Forma DJR Micro</FontFamily>
+    </Window.Resources>
+    
+    <Grid>
+        <!-- Indicador de carga -->
+        <Label Name="LoadingLabel" Content="Cargando..." 
+               HorizontalAlignment="Center" VerticalAlignment="Center" 
+               FontSize="24" Foreground="Black" 
+               Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}" />
+        <!-- Grid para mostrar la interfaz principal -->
+        <Grid x:Name="MainGrid">
+            <!-- MediaElement para reproducir el video -->
+            <MediaElement Name="videoPlayer" LoadedBehavior="Manual" UnloadedBehavior="Stop" MediaEnded="OnMediaEnded" Stretch="Fill" />
+            
+            <!-- Botón para ver información del sistema -->
+            <Button Name="viewInfoButton" 
+                    Content="Ver Información del Sistema" 
+                    HorizontalAlignment="Right" 
+                    VerticalAlignment="Top" 
+                    Margin="10" 
+                    Padding="20,20" 
+                    FontSize="24" 
+                    Background="#0292D8" 
+                    Foreground="White" 
+                    BorderThickness="0" 
+                    Cursor="Hand" 
+                    FontFamily="{StaticResource CustomFontRegular}"
+                    Click="ViewInfoButton_Click" 
+                    />
+            
+            <Button Name="ViewFichaButton" Content="Leer Ficha"
+                    HorizontalAlignment="Right" 
+                    VerticalAlignment="Bottom" 
+                    Margin="10" 
+                    Padding="20,20" 
+                    FontSize="24" 
+                    Background="#0292D8" 
+                    Foreground="White" 
+                    BorderThickness="0" 
+                    Cursor="Hand" 
+                    FontFamily="{StaticResource CustomFontRegular}"
+                    Click="ViewFichaButton_Click" />
+        </Grid>
+    </Grid>
+</Window>

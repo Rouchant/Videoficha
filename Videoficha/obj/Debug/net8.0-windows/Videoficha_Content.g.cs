@@ -7,9 +7,12 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("sample/sample.pdf")]
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("sample/hp.wmv")]
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icon.ico")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("assets/samples/sample.pdf")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("assets/samples/hp.wmv")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("assets/images/icon.ico")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("assets/images/cencosud.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("assets/images/cmr.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("assets/images/ripley.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("webview2loader.dll")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("webview2loader.dll")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("webview2loader.dll")]

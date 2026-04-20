@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "IzkwxSbgVHQ=",
+  "dgSpecHash": "lDQdSq5sp2g=",
   "success": true,
-  "projectFilePath": "C:\\Users\\jmema\\RiderProjects\\Videoficha - copia\\Videoficha\\Videoficha.csproj",
+  "projectFilePath": "C:\\Users\\jmema\\Proyectos\\Videoficha\\Videoficha\\Videoficha.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\jmema\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\5.0.0\\microsoft.bcl.asyncinterfaces.5.0.0.nupkg.sha512",
     "C:\\Users\\jmema\\.nuget\\packages\\microsoft.bcl.cryptography\\9.0.0-rc.2.24473.5\\microsoft.bcl.cryptography.9.0.0-rc.2.24473.5.nupkg.sha512",

@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
         <UseWPF>true</UseWPF>
         <RootNamespace>Videoficha</RootNamespace>
-        <ApplicationIcon>icon.ico</ApplicationIcon>
+        <ApplicationIcon>Assets\Images\icon.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>
