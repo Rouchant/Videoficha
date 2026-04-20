@@ -1,68 +1,81 @@
 <Window x:Class="Videoficha.Features.Kiosk.Views.FileSelectionWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Seleccionar Archivos" SizeToContent="Height" Width="400" 
-        Background="#f0f0f0">
-    <StackPanel Margin="20">
-        <!-- Título -->
-        <TextBlock Text="Selecciona tus archivos" FontSize="18" FontWeight="Bold" Margin="0,0,0,20" HorizontalAlignment="Center" />
+        Title="Panel de Administración" Height="600" Width="500" 
+        Background="#121212" Foreground="White" WindowStartupLocation="CenterOwner" WindowStyle="ToolWindow">
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-        <!-- Botón para seleccionar video -->
-        <Button Click="SelectVideoButton_Click" Width="180" Margin="0,10" Padding="10" Background="#4CAF50" HorizontalAlignment="Center">
-            <Button.Style>
-                <Style TargetType="Button">
-                    <Style.Triggers>
-                        <!-- Efecto al pasar el ratón sobre el botón -->
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#45a049"/>
-                            <Setter Property="BorderBrush" Value="#388E3C"/>
-                            <Setter Property="Cursor" Value="Hand"/>
-                        </Trigger>
-                    </Style.Triggers>
+        <TextBlock Text="ADMINISTRACIÓN PRO" FontSize="18" FontWeight="Bold" Foreground="#0292D8" Margin="0,0,0,20" HorizontalAlignment="Center"/>
+
+        <TabControl Grid.Row="1" Background="Transparent" BorderThickness="0,1,0,0" BorderBrush="#333">
+            <TabControl.Resources>
+                <Style TargetType="TabItem">
+                    <Setter Property="Background" Value="Transparent"/><Setter Property="Foreground" Value="#888"/><Setter Property="Padding" Value="15,10"/><Setter Property="FontSize" Value="12"/><Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabItem">
+                                <Border Name="Border" BorderThickness="0,0,0,3" BorderBrush="Transparent" Padding="{TemplateBinding Padding}"><ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                                <ControlTemplate.Triggers><Trigger Property="IsSelected" Value="True"><Setter TargetName="Border" Property="BorderBrush" Value="#0292D8"/><Setter Property="Foreground" Value="White"/></Trigger></ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
                 </Style>
-            </Button.Style>
-            <TextBlock Text="Seleccionar Video" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White"/>
-        </Button>
+            </TabControl.Resources>
 
-        <!-- Etiqueta que muestra el nombre del video seleccionado -->
-        <Label x:Name="VideoPathLabel" Content="{Binding VideoPathDisplay}" Margin="0,10,0,20" HorizontalAlignment="Center" Foreground="#555" />
+            <TabItem Header="TIENDA">
+                <StackPanel Margin="0,20">
+                    <TextBlock Text="CÓDIGO SKU" Foreground="#888" FontSize="10" Margin="0,0,0,5"/>
+                    <TextBox Text="{Binding SKU}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="8" Margin="0,0,0,15"/>
+                    <CheckBox Content="Mostrar SKU en pantalla" IsChecked="{Binding ShowSKU}" Foreground="#888" Margin="0,0,0,10"/>
+                    <CheckBox Content="Mostrar PRECIO en pantalla" IsChecked="{Binding ShowPrice}" Foreground="#888" Margin="0,0,0,20"/>
 
-        <!-- Botón para seleccionar PDF -->
-        <Button Click="SelectPdfButton_Click" Width="180" Margin="0,10" Padding="10" Background="#4CAF50" HorizontalAlignment="Center">
-            <Button.Style>
-                <Style TargetType="Button">
-                    <Style.Triggers>
-                        <!-- Efecto al pasar el ratón sobre el botón -->
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#1976D2"/>
-                            <Setter Property="BorderBrush" Value="#1565C0"/>
-                            <Setter Property="Cursor" Value="Hand"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </Button.Style>
-            <TextBlock Text="Seleccionar PDF" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White"/>
-        </Button>
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                            <TextBlock Text="PRECIO DE LISTA" Foreground="#888" FontSize="10" Margin="0,0,0,5"/>
+                            <TextBox Text="{Binding ListPrice}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="8"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                            <TextBlock Text="PRECIO OFERTA" Foreground="#888" FontSize="10" Margin="0,0,0,5"/>
+                            <TextBox Text="{Binding PromoPrice}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="8"/>
+                        </StackPanel>
+                    </Grid>
 
-        <!-- Etiqueta que muestra el nombre del PDF seleccionado -->
-        <Label x:Name="PdfPathLabel" Content="{Binding PdfPathDisplay}" Margin="0,10,0,20" HorizontalAlignment="Center" Foreground="#555" />
+                    <TextBlock Text="TEXTO BOTÓN CTA" Foreground="#888" FontSize="10" Margin="0,20,0,5"/>
+                    <TextBox Text="{Binding CTAText}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="8"/>
+                </StackPanel>
+            </TabItem>
 
-        <!-- Botón OK -->
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="15">
-            <Button Content="OK" Click="OkButton_Click" Width="100" Height="35" Background="#0292D8" Foreground="White" BorderBrush="Blue" BorderThickness="1" Padding="10">
-                <Button.Style>
-                    <Style TargetType="Button">
-                        <Style.Triggers>
-                            <!-- Efecto al pasar el ratón sobre el botón -->
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#45a049"/>
-                                <Setter Property="BorderBrush" Value="#388E3C"/>
-                                <Setter Property="Cursor" Value="Hand"/>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </Button.Style>
-            </Button>
-        </StackPanel>
-    </StackPanel>
+            <TabItem Header="BRANDING">
+                <StackPanel Margin="0,20">
+                    <TextBlock Text="LOGO DISTRIBUIDOR" Foreground="#888" FontSize="10" Margin="0,0,0,5"/>
+                    <Grid Margin="0,0,0,20">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <TextBox Text="{Binding DistributorLogoPath}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="8" IsReadOnly="True"/>
+                        <Button Grid.Column="1" Content="..." Click="SelectLogoButton_Click" Width="40" Background="#333" BorderThickness="0" Margin="5,0,0,0"/>
+                    </Grid>
+                    <TextBlock Text="El logo del Fabricante (Acer, HP, Asus, etc.) se detecta automáticamente según el hardware del equipo." Foreground="#666" FontSize="10" TextWrapping="Wrap" Margin="0,10"/>
+                </StackPanel>
+            </TabItem>
+
+            <TabItem Header="VISUAL">
+                <StackPanel Margin="0,20">
+                    <TextBlock Text="VIDEO PRINCIPAL" Foreground="#888" FontSize="10" Margin="0,0,0,5"/>
+                    <Grid Margin="0,0,0,20">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <TextBox Text="{Binding VideoPath}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="8" IsReadOnly="True"/>
+                        <Button Grid.Column="1" Content="..." Click="SelectVideoButton_Click" Width="40" Background="#333" BorderThickness="0" Margin="5,0,0,0"/>
+                    </Grid>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+
+        <Button Grid.Row="2" Content="GUARDAR Y APLICAR CAMBIOS" Click="OkButton_Click" Height="50" Background="#0292D8" Foreground="White" FontWeight="Bold" BorderThickness="0"/>
+    </Grid>
 </Window>

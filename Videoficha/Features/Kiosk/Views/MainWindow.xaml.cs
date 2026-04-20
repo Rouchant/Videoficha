@@ -1,12 +1,10 @@
-using Microsoft.Win32;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using Videoficha.Features.Kiosk.ViewModels;
-using Videoficha.Features.SystemDiagnostics.Views;
 using Videoficha.Infrastructure.Services;
 
 namespace Videoficha.Features.Kiosk.Views
@@ -20,29 +18,43 @@ namespace Videoficha.Features.Kiosk.Views
         private const uint ES_DISPLAY_REQUIRED = 0x00000002;
 
         private readonly MainViewModel _viewModel;
+        private int _adminClickCount = 0;
+        private DispatcherTimer _adminClickTimer;
+        private DispatcherTimer _inactivityTimer;
+
+        private readonly string BackgroundVideoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Samples", "background-generic.mp4");
+        private readonly string DefaultVideoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Samples", "landing-generic.mp4");
+        private readonly string PromoVideoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Samples", "promo-generic.mp4");
 
         public MainWindow()
         {
             InitializeComponent();
             
-            // Manual Dependency Injection for now
             var systemProvider = new SystemProvider();
             var configService = new ConfigService();
             _viewModel = new MainViewModel(systemProvider, configService);
             DataContext = _viewModel;
 
-            this.Topmost = false;
-            this.KeyDown += Window_KeyDown;
             this.Loaded += MainWindow_Loaded;
-            this.Closing += MainWindow_Closing;
 
-            SystemEvents.PowerModeChanged += OnPowerModeChanged;
+            // Admin Timer
+            _adminClickTimer = new DispatcherTimer();
+            _adminClickTimer.Interval = TimeSpan.FromSeconds(2);
+            _adminClickTimer.Tick += (s, e) => { _adminClickCount = 0; _adminClickTimer.Stop(); };
+
+            // Inactivity Timer (30 segundos por defecto)
+            _inactivityTimer = new DispatcherTimer();
+            _inactivityTimer.Interval = TimeSpan.FromSeconds(30);
+            _inactivityTimer.Tick += InactivityTimer_Tick;
+            _inactivityTimer.Start();
         }
 
         private async void MainWindow_Loaded(object? sender, RoutedEventArgs e)
         {
             SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED);
             
+            PlayBackgroundVideo();
+
             await _viewModel.InitializeAsync();
 
             if (!string.IsNullOrEmpty(_viewModel.Settings.SelectedVideoPath) && File.Exists(_viewModel.Settings.SelectedVideoPath))
@@ -51,71 +63,98 @@ namespace Videoficha.Features.Kiosk.Views
             }
             else
             {
-                SelectFiles();
-            }
-        }
-
-        private void Window_KeyDown(object? sender, KeyEventArgs e)
-        {
-            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
-            {
-                if (e.Key == Key.S)
-                {
-                    ShowFileSelectionWindow();
-                }
-                else if (e.Key == Key.I)
-                {
-                    _ = ShowSystemInfoEditWindow();
-                }
-            }
-        }
-
-        private async System.Threading.Tasks.Task ShowSystemInfoEditWindow()
-        {
-            var systemInfoEditWindow = new SystemInfoEditWindow(_viewModel.SystemSpec.ToList(), Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config", "systemInfo.txt"));
-            systemInfoEditWindow.Owner = this;
-            if (systemInfoEditWindow.ShowDialog() == true)
-            {
-                await _viewModel.InitializeAsync(); 
-            }
-        }
-
-        private void ShowFileSelectionWindow()
-        {
-            FileSelectionWindow fileSelectionWindow = new FileSelectionWindow { Owner = this };
-            if (fileSelectionWindow.ShowDialog() == true)
-            {
-                ProcessSelectedFiles(fileSelectionWindow);
-            }
-        }
-
-        private void SelectFiles()
-        {
-            FileSelectionWindow fileSelectionWindow = new FileSelectionWindow { Owner = this };
-            if (fileSelectionWindow.ShowDialog() == true)
-            {
-                ProcessSelectedFiles(fileSelectionWindow);
-            }
-            else
-            {
                 PlayDefaultVideo();
-                ShowDefaultPDF();
             }
         }
 
-        private void ProcessSelectedFiles(FileSelectionWindow fileSelectionWindow)
+        private void PlayBackgroundVideo()
         {
-            if (!string.IsNullOrEmpty(fileSelectionWindow.VideoFilePath))
+            if (File.Exists(BackgroundVideoPath))
             {
-                _viewModel.Settings.SelectedVideoPath = fileSelectionWindow.VideoFilePath;
-                _viewModel.SaveSettings();
-                PlaySelectedVideo(fileSelectionWindow.VideoFilePath);
+                backgroundVideo.Source = new Uri(BackgroundVideoPath);
+                backgroundVideo.Play();
             }
+        }
 
-            if (!string.IsNullOrEmpty(fileSelectionWindow.OtherFilePath))
+        private void PlayPromoVideo()
+        {
+            if (File.Exists(PromoVideoPath))
             {
-                _viewModel.Settings.SelectedPdfPath = fileSelectionWindow.OtherFilePath;
-                _viewModel.SaveSettings();
+                promoVideo.Source = new Uri(PromoVideoPath);
+                promoVideo.Play();
+                PromoGrid.Visibility = Visibility.Visible;
+                MainContentGrid.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void StopPromoVideo()
+        {
+            promoVideo.Stop();
+            PromoGrid.Visibility = Visibility.Collapsed;
+            MainContentGrid.Visibility = Visibility.Visible;
+        }
+
+        private void OnUserActivity(object sender, EventArgs e)
+        {
+            _inactivityTimer.Stop();
+            _inactivityTimer.Start();
+
+            if (PromoGrid.Visibility == Visibility.Visible)
+            {
+                StopPromoVideo();
+            }
+        }
+
+        private void InactivityTimer_Tick(object? sender, EventArgs e)
+        {
+            _inactivityTimer.Stop();
+            PlayPromoVideo();
+        }
+
+        private void OnBackgroundMediaEnded(object sender, RoutedEventArgs e)
+        {
+            backgroundVideo.Position = TimeSpan.Zero;
+            backgroundVideo.Play();
+        }
+
+        private void OnPromoMediaEnded(object sender, RoutedEventArgs e)
+        {
+            promoVideo.Position = TimeSpan.Zero;
+            promoVideo.Play();
+        }
+
+        private void AdminTrigger_Click(object sender, RoutedEventArgs e)
+        {
+            _adminClickCount++;
+            _adminClickTimer.Stop();
+            _adminClickTimer.Start();
+
+            if (_adminClickCount >= 4)
+            {
+                _adminClickCount = 0;
+                _adminClickTimer.Stop();
+                OpenConfig();
+            }
+        }
+
+        private void Explore_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+            var returnButton = new ReturnWindow(this);
+            returnButton.Show();
+        }
+
+        private void OpenConfig()
+        {
+            FileSelectionWindow configWindow = new FileSelectionWindow { Owner = this };
+            if (configWindow.ShowDialog() == true)
+            {
+                if (!string.IsNullOrEmpty(configWindow.VideoFilePath))
+                {
+                    _viewModel.Settings.SelectedVideoPath = configWindow.VideoFilePath;
+                    _viewModel.SaveSettings();
+                    PlaySelectedVideo(configWindow.VideoFilePath);
+                }
             }
         }
 
@@ -130,21 +169,10 @@ namespace Videoficha.Features.Kiosk.Views
 
         private void PlayDefaultVideo()
         {
-            string defaultVideoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Samples", "HP.wmv");
-            if (File.Exists(defaultVideoPath))
+            if (File.Exists(DefaultVideoPath))
             {
-                videoPlayer.Source = new Uri(defaultVideoPath);
+                videoPlayer.Source = new Uri(DefaultVideoPath);
                 videoPlayer.Play();
-            }
-        }
-
-        private void ShowDefaultPDF()
-        {
-            string defaultPDFPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Samples", "sample.pdf");
-            if (File.Exists(defaultPDFPath))
-            {
-                var leerFichaWindow = new LeerFicha(defaultPDFPath) { Owner = this };
-                leerFichaWindow.ShowDialog();
             }
         }
 
@@ -154,39 +182,9 @@ namespace Videoficha.Features.Kiosk.Views
             videoPlayer.Play();
         }
 
-        private void ViewFichaButton_Click(object? sender, RoutedEventArgs e)
-        {
-            string pdfPath = _viewModel.Settings.SelectedPdfPath;
-            if (string.IsNullOrEmpty(pdfPath))
-            {
-                ShowDefaultPDF();
-            }
-            else
-            {
-                var leerFichaWindow = new LeerFicha(pdfPath) { Owner = this };
-                leerFichaWindow.ShowDialog();
-            }
-        }
-
-        private void ViewInfoButton_Click(object? sender, RoutedEventArgs e)
-        {
-            var systemInfoWindow = new SystemInfoWindow { Owner = this };
-            systemInfoWindow.ShowDialog();
-        }
-
-        private void OnPowerModeChanged(object? sender, PowerModeChangedEventArgs e)
-        {
-            if (e.Mode == PowerModes.Resume && !string.IsNullOrEmpty(_viewModel.Settings.SelectedVideoPath))
-            {
-                videoPlayer.Stop();
-                videoPlayer.Source = new Uri(_viewModel.Settings.SelectedVideoPath);
-                videoPlayer.Play();
-            }
-        }
-
         private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
-            SystemEvents.PowerModeChanged -= OnPowerModeChanged;
+            // Limpieza
         }
     }
 }

@@ -1,7 +1,9 @@
-using Microsoft.Win32;
+using System;
 using System.Windows;
+using Microsoft.Win32;
 using Videoficha.Features.Kiosk.ViewModels;
 using Videoficha.Infrastructure.Services;
+using Videoficha.Features.SystemDiagnostics.Views;
 
 namespace Videoficha.Features.Kiosk.Views
 {
@@ -9,8 +11,7 @@ namespace Videoficha.Features.Kiosk.Views
     {
         private readonly FileSelectionViewModel _viewModel;
 
-        public string VideoFilePath => _viewModel.VideoPath;
-        public string OtherFilePath => _viewModel.PdfPath;
+        public string? VideoFilePath { get; private set; }
 
         public FileSelectionWindow()
         {
@@ -19,37 +20,31 @@ namespace Videoficha.Features.Kiosk.Views
             DataContext = _viewModel;
         }
 
-        private void SelectVideoButton_Click(object? sender, RoutedEventArgs e)
+        private void SelectVideoButton_Click(object sender, RoutedEventArgs e)
         {
-            var openFileDialog = new OpenFileDialog
-            {
-                Filter = "Video Files|*.wmv;*.mp4;*.avi;*.mkv",
-                Title = "Seleccionar Video"
-            };
-
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Videos (*.mp4;*.wmv;*.avi)|*.mp4;*.wmv;*.avi";
             if (openFileDialog.ShowDialog() == true)
             {
                 _viewModel.VideoPath = openFileDialog.FileName;
             }
         }
 
-        private void SelectPdfButton_Click(object? sender, RoutedEventArgs e)
+        private void SelectLogoButton_Click(object sender, RoutedEventArgs e)
         {
-            var openFileDialog = new OpenFileDialog
-            {
-                Filter = "PDF Files|*.pdf",
-                Title = "Seleccionar PDF"
-            };
-
-            if (openFileDialog.ShowDialog() == true)
-            {
-                _viewModel.PdfPath = openFileDialog.FileName;
-            }
+            _viewModel.SelectDistributorLogo();
         }
 
-        private void OkButton_Click(object? sender, RoutedEventArgs e)
+        private void EditSpecsButton_Click(object sender, RoutedEventArgs e)
+        {
+            var editWindow = new SystemInfoEditWindow { Owner = this };
+            editWindow.ShowDialog();
+        }
+
+        private void OkButton_Click(object sender, RoutedEventArgs e)
         {
             _viewModel.Save();
+            VideoFilePath = _viewModel.VideoPath;
             DialogResult = true;
             Close();
         }

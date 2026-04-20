@@ -9,7 +9,6 @@ namespace Videoficha.Infrastructure.Services
     {
         private readonly string _configPath;
         private readonly string _videoSelectionFile = "videoSelection.txt";
-        private readonly string _pdfSelectionFile = "pdfSelection.txt";
         private readonly string _systemInfoFile = "systemInfo.txt";
 
         public ConfigService()
@@ -25,15 +24,13 @@ namespace Videoficha.Infrastructure.Services
         {
             return new KioskSettings
             {
-                SelectedVideoPath = LoadFileContent(_videoSelectionFile),
-                SelectedPdfPath = LoadFileContent(_pdfSelectionFile)
+                SelectedVideoPath = LoadFileContent(_videoSelectionFile)
             };
         }
 
         public void SaveSettings(KioskSettings settings)
         {
             SaveFileContent(_videoSelectionFile, settings.SelectedVideoPath);
-            SaveFileContent(_pdfSelectionFile, settings.SelectedPdfPath);
         }
 
         public SystemSpec? LoadSystemSpec()

@@ -1,58 +1,159 @@
 <Window x:Class="Videoficha.Features.Kiosk.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Videoficha" 
-        WindowStyle="None" 
-        WindowState="Maximized" 
-        ResizeMode="NoResize" 
-        Topmost="True"
-        Closing="MainWindow_Closing"
-        KeyDown="Window_KeyDown">
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Videoficha" WindowStyle="None" WindowState="Maximized" ResizeMode="NoResize" Topmost="True"
+        Background="#080808" MouseMove="OnUserActivity" KeyDown="OnUserActivity" Closing="MainWindow_Closing">
+    
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
-        <FontFamily x:Key="CustomFontRegular">pack://application:,,,/Assets/Fonts/FormaDJRMicro-Regular.ttf#Forma DJR Micro</FontFamily>
-        <FontFamily x:Key="CustomFontBold">pack://application:,,,/Assets/Fonts/FormaDJRMicro-Bold.ttf#Forma DJR Micro</FontFamily>
+        
+        <Style x:Key="SpecCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="50"/> <!-- Mas redondeado -->
+            <Setter Property="Height" Value="100"/>     <!-- MAS ALTO -->
+            <Setter Property="Margin" Value="0,0,0,20"/>
+            <Setter Property="Effect">
+                <Setter.Value><DropShadowEffect BlurRadius="20" ShadowDepth="2" Opacity="0.1"/></Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="CardIconStyle" TargetType="Image">
+            <Setter Property="Width" Value="45"/>
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="Margin" Value="30,0,25,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="CardLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#999"/>
+            <Setter Property="VerticalAlignment" Value="Bottom"/>
+        </Style>
+
+        <Style x:Key="CardValueStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="ExtraBold"/>
+            <Setter Property="Foreground" Value="#222"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+        </Style>
     </Window.Resources>
-    
+
     <Grid>
-        <!-- Indicador de carga -->
-        <Label Name="LoadingLabel" Content="Cargando..." 
-               HorizontalAlignment="Center" VerticalAlignment="Center" 
-               FontSize="24" Foreground="Black" 
-               Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}" />
-        <!-- Grid para mostrar la interfaz principal -->
-        <Grid x:Name="MainGrid">
-            <!-- MediaElement para reproducir el video -->
-            <MediaElement Name="videoPlayer" LoadedBehavior="Manual" UnloadedBehavior="Stop" MediaEnded="OnMediaEnded" Stretch="Fill" />
-            
-            <!-- Botón para ver información del sistema -->
-            <Button Name="viewInfoButton" 
-                    Content="Ver Información del Sistema" 
-                    HorizontalAlignment="Right" 
-                    VerticalAlignment="Top" 
-                    Margin="10" 
-                    Padding="20,20" 
-                    FontSize="24" 
-                    Background="#0292D8" 
-                    Foreground="White" 
-                    BorderThickness="0" 
-                    Cursor="Hand" 
-                    FontFamily="{StaticResource CustomFontRegular}"
-                    Click="ViewInfoButton_Click" 
-                    />
-            
-            <Button Name="ViewFichaButton" Content="Leer Ficha"
-                    HorizontalAlignment="Right" 
-                    VerticalAlignment="Bottom" 
-                    Margin="10" 
-                    Padding="20,20" 
-                    FontSize="24" 
-                    Background="#0292D8" 
-                    Foreground="White" 
-                    BorderThickness="0" 
-                    Cursor="Hand" 
-                    FontFamily="{StaticResource CustomFontRegular}"
-                    Click="ViewFichaButton_Click" />
+        <MediaElement Name="backgroundVideo" LoadedBehavior="Manual" IsMuted="True" MediaEnded="OnBackgroundMediaEnded" Stretch="UniformToFill" Opacity="0.3" />
+
+        <Grid x:Name="MainContentGrid" Margin="60,40">
+            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+
+            <!-- HEADER -->
+            <Grid Grid.Row="0" Margin="0,0,0,40">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <Image Source="{Binding ManufacturerLogo}" Height="60" Width="Auto" Margin="0,0,30,0" Stretch="Uniform"/>
+                    <Image Source="{Binding DistributorLogo}" Height="60" Width="Auto" Stretch="Uniform" Opacity="0.8"/>
+                </StackPanel>
+
+                <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding SystemSpec.Model}" Foreground="White" FontSize="32" FontWeight="ExtraBold" TextAlignment="Right"/>
+                    <TextBlock Text="{Binding Settings.SKU}" Foreground="#888" FontSize="14" FontWeight="Bold" TextAlignment="Right" 
+                               Visibility="{Binding Settings.ShowSKU, Converter={StaticResource BoolToVis}}"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- BODY -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.4*"/> <!-- 40% de la pantalla -->
+                    <ColumnDefinition Width="0.6*"/>
+                </Grid.ColumnDefinitions>
+
+                <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Hidden">
+                    <StackPanel VerticalAlignment="Center">
+                        <Border Style="{StaticResource SpecCardStyle}">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Image Source="{Binding CpuVendorIcon}" Style="{StaticResource CardIconStyle}"/>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="PROCESADOR" Style="{StaticResource CardLabelStyle}"/><TextBlock Text="{Binding SystemSpec.Processor}" Style="{StaticResource CardValueStyle}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                        <Border Style="{StaticResource SpecCardStyle}">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Image Source="/Assets/Images/ui/ram.png" Style="{StaticResource CardIconStyle}"/>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="MEMORIA RAM" Style="{StaticResource CardLabelStyle}"/><TextBlock Text="{Binding SystemSpec.RAM}" Style="{StaticResource CardValueStyle}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                        <Border Style="{StaticResource SpecCardStyle}">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Image Source="/Assets/Images/ui/storage.png" Style="{StaticResource CardIconStyle}"/>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="ALMACENAMIENTO" Style="{StaticResource CardLabelStyle}"/><TextBlock Text="{Binding SystemSpec.Storage}" Style="{StaticResource CardValueStyle}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                        <Border Style="{StaticResource SpecCardStyle}">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Image Source="/Assets/Images/ui/screen.png" Style="{StaticResource CardIconStyle}"/>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="PANTALLA" Style="{StaticResource CardLabelStyle}"/><TextBlock Text="{Binding SystemSpec.Display}" Style="{StaticResource CardValueStyle}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                        <Border Style="{StaticResource SpecCardStyle}">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Image Source="/Assets/Images/ui/gpu.png" Style="{StaticResource CardIconStyle}"/>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="GRÁFICOS" Style="{StaticResource CardLabelStyle}"/><TextBlock Text="{Binding SystemSpec.Graphics}" Style="{StaticResource CardValueStyle}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                        <Border Style="{StaticResource SpecCardStyle}">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Image Source="/Assets/Images/ui/windows-11.png" Style="{StaticResource CardIconStyle}"/>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="SISTEMA OPERATIVO" Style="{StaticResource CardLabelStyle}"/><TextBlock Text="{Binding SystemSpec.OS}" Style="{StaticResource CardValueStyle}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <Grid Grid.Column="1" Margin="60,0,0,0">
+                    <Border CornerRadius="30" ClipToBounds="True">
+                        <Border.Effect><DropShadowEffect BlurRadius="60" ShadowDepth="0" Opacity="0.6" Color="Black"/></Border.Effect>
+                        <MediaElement Name="videoPlayer" LoadedBehavior="Manual" IsMuted="True" MediaEnded="OnMediaEnded" Stretch="UniformToFill" />
+                    </Border>
+                </Grid>
+            </Grid>
+
+            <!-- FOOTER -->
+            <Grid Grid.Row="2" Margin="0,40,0,0">
+                <Button HorizontalAlignment="Left" Width="240" Height="80" Background="#CCFF00" BorderThickness="0" Click="Explore_Click">
+                    <Button.Resources><Style TargetType="Border"><Setter Property="CornerRadius" Value="40"/></Style></Button.Resources>
+                    <TextBlock Text="{Binding Settings.CTAText}" Foreground="Black" FontSize="22" FontWeight="ExtraBold"/>
+                </Button>
+
+                <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Visibility="{Binding Settings.ShowPrice, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="{Binding Settings.ListPrice}" Foreground="#666" FontSize="18" TextAlignment="Right" TextDecorations="Strikethrough"/>
+                    <TextBlock Text="{Binding Settings.PromoPrice}" Foreground="#CCFF00" FontSize="52" FontWeight="ExtraBold" TextAlignment="Right" Margin="0,-5,0,0"/>
+                </StackPanel>
+            </Grid>
         </Grid>
+
+        <Grid Name="PromoGrid" Visibility="Collapsed">
+            <MediaElement Name="promoVideo" LoadedBehavior="Manual" IsMuted="True" MediaEnded="OnPromoMediaEnded" Stretch="UniformToFill" />
+        </Grid>
+
+        <Button Name="AdminTrigger" Width="100" Height="100" HorizontalAlignment="Right" VerticalAlignment="Top" Opacity="0" Click="AdminTrigger_Click" />
     </Grid>
 </Window>

@@ -10,11 +10,11 @@ none
 false
 TRACE;DEBUG;NET;NET8_0;NETCOREAPP
 C:\Users\jmema\Proyectos\Videoficha\Videoficha\App.xaml
-6534785300
-9-1464301939
-19-2046644968
+556775975
+28-262455045
+18186816402
 227-119608020
-Features\Kiosk\Views\FileSelectionWindow.xaml;Features\Kiosk\Views\LeerFicha.xaml;Features\Kiosk\Views\MainWindow.xaml;Features\Kiosk\Views\SetPriceWindow.xaml;Features\SystemDiagnostics\Views\SystemInfoEditWindow.xaml;Features\SystemDiagnostics\Views\SystemInfoWindow.xaml;
+Features\Kiosk\Views\FileSelectionWindow.xaml;Features\Kiosk\Views\MainWindow.xaml;Features\Kiosk\Views\ReturnWindow.xaml;Features\SystemDiagnostics\Views\SystemInfoEditWindow.xaml;Features\SystemDiagnostics\Views\SystemInfoWindow.xaml;
 
 False
 

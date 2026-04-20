@@ -1,43 +1,34 @@
 <Window x:Class="Videoficha.Features.SystemDiagnostics.Views.SystemInfoEditWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Editar Información del Sistema" SizeToContent="Height" Width="600">
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+        Title="Editar Especificaciones" SizeToContent="Height" Width="450" 
+        Background="#121212" WindowStartupLocation="CenterOwner">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="25">
+            <TextBlock Text="EDITAR ESPECIFICACIONES" Foreground="#0292D8" FontWeight="Bold" Margin="0,0,0,20" HorizontalAlignment="Center"/>
 
-        <Label Content="Modelo:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="5"/>
-        <TextBox x:Name="ModelTextBox" Text="{Binding SystemSpec.Model, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="1" Margin="5"/>
+            <TextBlock Text="Modelo" Foreground="#888" Margin="0,10,0,5"/>
+            <TextBox Text="{Binding SystemSpec.Model, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
 
-        <Label Content="Sistema Operativo:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="5"/>
-        <TextBox x:Name="OSTextBox" Text="{Binding SystemSpec.OS, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="1" Margin="5"/>
+            <TextBlock Text="Procesador" Foreground="#888" Margin="0,10,0,5"/>
+            <TextBox Text="{Binding SystemSpec.Processor, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
 
-        <Label Content="Procesador:" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Margin="5"/>
-        <TextBox x:Name="ProcessorTextBox" Text="{Binding SystemSpec.Processor, UpdateSourceTrigger=PropertyChanged}" Grid.Row="2" Grid.Column="1" Margin="5"/>
+            <TextBlock Text="Memoria RAM" Foreground="#888" Margin="0,10,0,5"/>
+            <TextBox Text="{Binding SystemSpec.RAM, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
 
-        <Label Content="RAM (GB):" Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Margin="5"/>
-        <TextBox x:Name="RAMTextBox" Text="{Binding SystemSpec.RAM, UpdateSourceTrigger=PropertyChanged}" Grid.Row="3" Grid.Column="1" Margin="5"/>
+            <TextBlock Text="Almacenamiento" Foreground="#888" Margin="0,10,0,5"/>
+            <TextBox Text="{Binding SystemSpec.Storage, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
 
-        <Label Content="Almacenamiento (GB):" Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" Margin="5"/>
-        <TextBox x:Name="StorageTextBox" Text="{Binding SystemSpec.Storage, UpdateSourceTrigger=PropertyChanged}" Grid.Row="4" Grid.Column="1" Margin="5"/>
+            <TextBlock Text="Pantalla" Foreground="#888" Margin="0,10,0,5"/>
+            <TextBox Text="{Binding SystemSpec.Display, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
 
-        <Label Content="Tarjeta Gráfica:" Grid.Row="5" Grid.Column="0" VerticalAlignment="Center" Margin="5"/>
-        <TextBox x:Name="GraphicsTextBox" Text="{Binding SystemSpec.Graphics, UpdateSourceTrigger=PropertyChanged}" Grid.Row="5" Grid.Column="1" Margin="5"/>
+            <TextBlock Text="Gráficos" Foreground="#888" Margin="0,10,0,5"/>
+            <TextBox Text="{Binding SystemSpec.Graphics, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
 
-        <Button Content="Guardar" Click="SaveButton_Click" 
-                Grid.Row="7" Grid.Column="1" HorizontalAlignment="Right" Margin="5"
-                Width="100" Height="30" Background="#0292D8" Foreground="White" FontWeight="Bold"/>
-    </Grid>
+            <TextBlock Text="Sistema" Foreground="#888" Margin="0,10,0,5"/>
+            <TextBox Text="{Binding SystemSpec.OS, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
+
+            <Button Content="GUARDAR CAMBIOS" Click="SaveButton_Click" Margin="0,30,0,0" Padding="10" Background="#0292D8" Foreground="White" FontWeight="Bold" BorderThickness="0"/>
+        </StackPanel>
+    </ScrollViewer>
 </Window>

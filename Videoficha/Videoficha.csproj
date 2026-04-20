@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <TargetFramework>net8.0-windows</TargetFramework>
@@ -20,6 +19,15 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Content Include="Assets\Samples\background-generic.mp4">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="Assets\Samples\landing-generic.mp4">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="Assets\Samples\promo-generic.mp4">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
       <Content Include="Assets\Samples\sample.pdf">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
@@ -31,21 +39,14 @@
       <Resource Include="Assets\Fonts\FormaDJRMicro-Regular.ttf">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Resource>
-      <None Remove="Assets\Samples\HP.wmv" />
-      <Content Include="Assets\Samples\HP.wmv">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <None Remove="Assets\Samples\sample.pdf" />
     </ItemGroup>
 
     <ItemGroup>
       <Content Include="Assets\Images\icon.ico">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
-      <Content Include="Assets\Images\*.png">
+      <Content Include="Assets\Images\**\*.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
-
-
 </Project>

@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
+using Microsoft.Win32;
 using Videoficha.Infrastructure.Services;
 using Videoficha.Models;
 
@@ -14,37 +15,67 @@ namespace Videoficha.Features.Kiosk.ViewModels
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private readonly string DefaultVideoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Samples", "HP.wmv");
-        private readonly string DefaultPdfPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Samples", "sample.pdf");
-
         public FileSelectionViewModel(IConfigService configService)
         {
             _configService = configService;
             _settings = _configService.LoadSettings();
         }
 
-        public string VideoPathDisplay => string.IsNullOrEmpty(_settings.SelectedVideoPath) || _settings.SelectedVideoPath == DefaultVideoPath ? "Por defecto" : _settings.SelectedVideoPath;
-        public string PdfPathDisplay => string.IsNullOrEmpty(_settings.SelectedPdfPath) || _settings.SelectedPdfPath == DefaultPdfPath ? "Por defecto" : _settings.SelectedPdfPath;
-
         public string VideoPath
         {
             get => _settings.SelectedVideoPath;
-            set 
-            { 
-                _settings.SelectedVideoPath = value; 
-                OnPropertyChanged(); 
-                OnPropertyChanged(nameof(VideoPathDisplay));
-            }
+            set { _settings.SelectedVideoPath = value; OnPropertyChanged(); }
         }
 
-        public string PdfPath
+        public string SKU
         {
-            get => _settings.SelectedPdfPath;
-            set 
-            { 
-                _settings.SelectedPdfPath = value; 
-                OnPropertyChanged(); 
-                OnPropertyChanged(nameof(PdfPathDisplay));
+            get => _settings.SKU;
+            set { _settings.SKU = value; OnPropertyChanged(); }
+        }
+
+        public bool ShowSKU
+        {
+            get => _settings.ShowSKU;
+            set { _settings.ShowSKU = value; OnPropertyChanged(); }
+        }
+
+        public string ListPrice
+        {
+            get => _settings.ListPrice;
+            set { _settings.ListPrice = value; OnPropertyChanged(); }
+        }
+
+        public string PromoPrice
+        {
+            get => _settings.PromoPrice;
+            set { _settings.PromoPrice = value; OnPropertyChanged(); }
+        }
+
+        public bool ShowPrice
+        {
+            get => _settings.ShowPrice;
+            set { _settings.ShowPrice = value; OnPropertyChanged(); }
+        }
+
+        public string CTAText
+        {
+            get => _settings.CTAText;
+            set { _settings.CTAText = value; OnPropertyChanged(); }
+        }
+
+        public string DistributorLogoPath
+        {
+            get => _settings.DistributorLogoPath;
+            set { _settings.DistributorLogoPath = value; OnPropertyChanged(); }
+        }
+
+        public void SelectDistributorLogo()
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Imágenes (*.png;*.jpg;*.svg)|*.png;*.jpg;*.svg";
+            if (openFileDialog.ShowDialog() == true)
+            {
+                DistributorLogoPath = openFileDialog.FileName;
             }
         }
 
