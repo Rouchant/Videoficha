@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Windows;
 
-namespace Videoficha
+namespace Videoficha.Views
 {
     public partial class FileSelectionWindow : Window
     {
@@ -13,8 +13,8 @@ namespace Videoficha
         public string OtherFilePath { get; private set; }
 
         // Rutas predeterminadas
-        private readonly string DefaultVideoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sample", "HP.wmv");
-        private readonly string DefaultPdfPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sample", "sample.pdf");
+        private readonly string DefaultVideoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Samples", "HP.wmv");
+        private readonly string DefaultPdfPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Samples", "sample.pdf");
 
         // Constructor que trata de leer los archivos actuales desde los archivos de texto
         public FileSelectionWindow()

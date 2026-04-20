@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 
-namespace Videoficha
+namespace Videoficha.Views
 {
     public partial class SystemInfoWindow : Window
     {
@@ -20,7 +20,7 @@ namespace Videoficha
             InitializeComponent();
 
             // Ruta completa de la carpeta config
-            ConfigFolderPath = Path.Combine(Environment.CurrentDirectory, ConfigFolderName);
+            ConfigFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ConfigFolderName);
 
             // Ruta completa del archivo systemInfo.txt
             SystemInfoFilePath = Path.Combine(ConfigFolderPath, "systemInfo.txt");

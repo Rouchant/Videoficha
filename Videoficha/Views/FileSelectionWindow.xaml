@@ -1,4 +1,4 @@
-﻿<Window x:Class="Videoficha.FileSelectionWindow"
+<Window x:Class="Videoficha.Views.FileSelectionWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Seleccionar Archivos" SizeToContent="Height" Width="400" 

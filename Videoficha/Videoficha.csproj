@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
@@ -16,31 +16,33 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="Fonts\FormaDJRDisplay-Regular.ttf" />
+      <None Remove="Assets\Fonts\FormaDJRDisplay-Regular.ttf" />
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="sample\sample.pdf">
+      <Content Include="Assets\Samples\sample.pdf">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
-      <None Remove="Fonts\FormaDJRMicro-Bold.ttf" />
-      <Resource Include="Fonts\FormaDJRMicro-Bold.ttf">
+      <None Remove="Assets\Fonts\FormaDJRMicro-Bold.ttf" />
+      <Resource Include="Assets\Fonts\FormaDJRMicro-Bold.ttf">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Resource>
-      <None Remove="Fonts\FormaDJRMicro-Regular.ttf" />
-      <Resource Include="Fonts\FormaDJRMicro-Regular.ttf">
+      <None Remove="Assets\Fonts\FormaDJRMicro-Regular.ttf" />
+      <Resource Include="Assets\Fonts\FormaDJRMicro-Regular.ttf">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Resource>
-      <None Remove="sample\HP.wmv" />
-      <Content Include="sample\HP.wmv">
+      <None Remove="Assets\Samples\HP.wmv" />
+      <Content Include="Assets\Samples\HP.wmv">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
-      <None Remove="sample\sample.pdf" />
+      <None Remove="Assets\Samples\sample.pdf" />
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="pc_computer_screen_desktop_icon_131250.ico" />
-      <Content Include="icon.ico">
+      <Content Include="Assets\Images\icon.ico">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="Assets\Images\*.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>

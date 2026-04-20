@@ -1,32 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+using System;
 using System.Windows;
+using System.Windows.Input;
+using Microsoft.Web.WebView2.Core;
 using System.Windows.Threading;
 
-namespace Videoficha
+namespace Videoficha.Views
 {
-    public partial class SystemInfoEditWindow : Window
+    public partial class LeerFicha : Window
     {
-        private List<string> _systemInfo;
-        private readonly string _filePath;
         private DispatcherTimer inactivityTimer; // Temporizador para detectar inactividad
         private const int InactivityThreshold = 300000; // 5 minutos en milisegundos
 
-        public SystemInfoEditWindow(List<string> systemInfo, string filePath)
+        public LeerFicha(string pdfPath)
         {
             InitializeComponent();
-            _systemInfo = systemInfo;
-            _filePath = filePath;
-
-            // Cargar los valores actuales en los TextBox
-            ModelTextBox.Text = _systemInfo[0];
-            OSTextBox.Text = _systemInfo[1];
-            ProcessorTextBox.Text = _systemInfo[2];
-            RAMTextBox.Text = _systemInfo[3];
-            StorageTextBox.Text = _systemInfo[4];
-            GraphicsTextBox.Text = _systemInfo[5];
-
+            InitializeWebView();
+            LoadPDF(pdfPath);
+            SetWindowSize();
+            
             // Inicializar el temporizador de inactividad
             inactivityTimer = new DispatcherTimer();
             inactivityTimer.Interval = TimeSpan.FromMilliseconds(InactivityThreshold);
@@ -40,19 +31,40 @@ namespace Videoficha
             inactivityTimer.Start();
         }
 
-        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        private async void InitializeWebView()
         {
-            // Actualizar la lista de información del sistema con los valores editados
-            _systemInfo[0] = ModelTextBox.Text;
-            _systemInfo[1] = OSTextBox.Text;
-            _systemInfo[2] = ProcessorTextBox.Text;
-            _systemInfo[3] = RAMTextBox.Text;
-            _systemInfo[4] = StorageTextBox.Text;
-            _systemInfo[5] = GraphicsTextBox.Text;
+            await pdfWebView.EnsureCoreWebView2Async();
+        }
 
-            // Guardar los valores actualizados en el archivo de información del sistema
-            File.WriteAllLines(_filePath, _systemInfo);
-            Close();
+        private void SetWindowSize()
+        {
+            var screenWidth = SystemParameters.PrimaryScreenWidth;
+            var screenHeight = SystemParameters.PrimaryScreenHeight;
+
+            this.Width = screenWidth * 0.8;
+            this.Height = screenHeight * 0.8;
+
+            this.Left = (screenWidth - this.Width) / 2;
+            this.Top = (screenHeight - this.Height) / 2;
+        }
+
+        private void LoadPDF(string pdfPath)
+        {
+            // Cargar el PDF en el WebView2
+            pdfWebView.Source = new Uri($"file:///{pdfPath}");
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        private void Border_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ButtonState == MouseButtonState.Pressed)
+            {
+                this.DragMove();
+            }
         }
 
         // Método que reinicia el temporizador de inactividad

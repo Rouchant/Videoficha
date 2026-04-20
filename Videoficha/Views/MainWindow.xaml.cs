@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,8 +9,9 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using Videoficha.Core;
 
-namespace Videoficha
+namespace Videoficha.Views
 {
     public partial class MainWindow : Window
     {
@@ -33,7 +34,7 @@ namespace Videoficha
             this.Closing += MainWindow_Closing;
 
             // Ruta completa de la carpeta config
-            ConfigFolderPath = Path.Combine(Environment.CurrentDirectory, ConfigFolderName);
+            ConfigFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ConfigFolderName);
 
             // Crear la carpeta config si no existe
             CreateConfigFolder();
@@ -170,7 +171,7 @@ namespace Videoficha
         private void PlayDefaultVideo()
         {
             string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string defaultVideoPath = Path.Combine(baseDirectory, "sample", "HP.wmv");
+            string defaultVideoPath = Path.Combine(baseDirectory, "Assets", "Samples", "HP.wmv");
 
             if (File.Exists(defaultVideoPath))
             {
@@ -182,7 +183,7 @@ namespace Videoficha
         private void ShowDefaultPDF()
         {
             string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string defaultPDFPath = Path.Combine(baseDirectory, "sample", "sample.pdf");
+            string defaultPDFPath = Path.Combine(baseDirectory, "Assets", "Samples", "sample.pdf");
 
             if (File.Exists(defaultPDFPath))
             {

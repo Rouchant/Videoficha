@@ -1,6 +1,6 @@
-﻿using System.Windows;
+using System.Windows;
 
-namespace Videoficha;
+namespace Videoficha.Views;
 
 public partial class SetPriceWindow : Window
 {

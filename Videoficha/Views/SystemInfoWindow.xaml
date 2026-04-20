@@ -1,4 +1,4 @@
-﻿<Window x:Class="Videoficha.SystemInfoWindow"
+<Window x:Class="Videoficha.Views.SystemInfoWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Información del Sistema" Width="800"
@@ -9,8 +9,8 @@
         SizeToContent="Height">
 
     <Window.Resources>
-        <FontFamily x:Key="CustomFontRegular">pack://application:,,,/Fonts/FormaDJRMicro-Regular.ttf#Forma DJR Micro</FontFamily>
-        <FontFamily x:Key="CustomFontBold">pack://application:,,,/Fonts/FormaDJRMicro-Bold.ttf#Forma DJR Micro</FontFamily>
+        <FontFamily x:Key="CustomFontRegular">pack://application:,,,/Assets/Fonts/FormaDJRMicro-Regular.ttf#Forma DJR Micro</FontFamily>
+        <FontFamily x:Key="CustomFontBold">pack://application:,,,/Assets/Fonts/FormaDJRMicro-Bold.ttf#Forma DJR Micro</FontFamily>
         
         <Style TargetType="TextBlock">
             <Setter Property="FontSize" Value="24"/>
