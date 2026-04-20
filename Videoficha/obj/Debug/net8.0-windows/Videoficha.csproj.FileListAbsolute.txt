@@ -172,3 +172,8 @@ C:\Users\jmema\Proyectos\Videoficha\Videoficha\bin\Debug\net8.0-windows\Assets\I
 C:\Users\jmema\Proyectos\Videoficha\Videoficha\bin\Debug\net8.0-windows\Assets\Images\ui\windows-11.png
 C:\Users\jmema\Proyectos\Videoficha\Videoficha\obj\Debug\net8.0-windows\Features\Kiosk\Views\ReturnWindow.baml
 C:\Users\jmema\Proyectos\Videoficha\Videoficha\obj\Debug\net8.0-windows\Features\Kiosk\Views\ReturnWindow.g.cs
+C:\Users\jmema\Proyectos\Videoficha\Videoficha\bin\Debug\net8.0-windows\Assets\Images\acer.png
+C:\Users\jmema\Proyectos\Videoficha\Videoficha\bin\Debug\net8.0-windows\Assets\Images\falabella.png
+C:\Users\jmema\Proyectos\Videoficha\Videoficha\bin\Debug\net8.0-windows\Assets\Images\hp.png
+C:\Users\jmema\Proyectos\Videoficha\Videoficha\bin\Debug\net8.0-windows\Assets\Images\lenovo.png
+C:\Users\jmema\Proyectos\Videoficha\Videoficha\bin\Debug\net8.0-windows\Assets\Images\samsung.png
