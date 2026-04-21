@@ -69,22 +69,37 @@ namespace Videoficha.Features.Kiosk.Views
 
         private void PlayBackgroundVideo()
         {
-            if (File.Exists(BackgroundVideoPath))
+            try
             {
-                backgroundVideo.Source = new Uri(BackgroundVideoPath);
-                backgroundVideo.Play();
+                // El video de fondo (backgroundVideo) es solo estético detrás de todo.
+                if (File.Exists(BackgroundVideoPath))
+                {
+                    backgroundVideo.Source = new Uri(Path.GetFullPath(BackgroundVideoPath));
+                    backgroundVideo.Play();
+                }
             }
+            catch { }
         }
 
         private void PlayPromoVideo()
         {
-            if (File.Exists(PromoVideoPath))
+            try
             {
-                promoVideo.Source = new Uri(PromoVideoPath);
-                promoVideo.Play();
-                PromoGrid.Visibility = Visibility.Visible;
-                MainContentGrid.Visibility = Visibility.Collapsed;
+                string promoPath = _viewModel.Settings.InactivityVideoPath;
+                if (string.IsNullOrEmpty(promoPath) || !File.Exists(promoPath))
+                {
+                    promoPath = PromoVideoPath; // Fallback al genérico
+                }
+
+                if (File.Exists(promoPath) && IsVideoFile(promoPath))
+                {
+                    promoVideo.Source = new Uri(Path.GetFullPath(promoPath));
+                    promoVideo.Play();
+                    PromoGrid.Visibility = Visibility.Visible;
+                    MainContentGrid.Visibility = Visibility.Collapsed;
+                }
             }
+            catch { }
         }
 
         private void StopPromoVideo()
@@ -146,34 +161,54 @@ namespace Videoficha.Features.Kiosk.Views
 
         private void OpenConfig()
         {
-            FileSelectionWindow configWindow = new FileSelectionWindow { Owner = this };
-            if (configWindow.ShowDialog() == true)
+            try
             {
-                if (!string.IsNullOrEmpty(configWindow.VideoFilePath))
+                FileSelectionWindow configWindow = new FileSelectionWindow { Owner = this };
+                if (configWindow.ShowDialog() == true)
                 {
-                    _viewModel.Settings.SelectedVideoPath = configWindow.VideoFilePath;
-                    _viewModel.SaveSettings();
-                    PlaySelectedVideo(configWindow.VideoFilePath);
+                    _viewModel.ReloadSettings();
+                    if (!string.IsNullOrEmpty(configWindow.VideoFilePath))
+                    {
+                        PlaySelectedVideo(configWindow.VideoFilePath);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al recargar la configuración: {ex.Message}", "Error de Configuración", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
         private void PlaySelectedVideo(string videoPath)
         {
-            if (videoPlayer != null && !string.IsNullOrEmpty(videoPath))
+            try
             {
-                videoPlayer.Source = new Uri(videoPath);
-                videoPlayer.Play();
+                if (videoPlayer != null && !string.IsNullOrEmpty(videoPath) && File.Exists(videoPath) && IsVideoFile(videoPath))
+                {
+                    videoPlayer.Source = new Uri(Path.GetFullPath(videoPath));
+                    videoPlayer.Play();
+                }
             }
+            catch { }
         }
 
         private void PlayDefaultVideo()
         {
-            if (File.Exists(DefaultVideoPath))
+            try
             {
-                videoPlayer.Source = new Uri(DefaultVideoPath);
-                videoPlayer.Play();
+                if (File.Exists(DefaultVideoPath) && IsVideoFile(DefaultVideoPath))
+                {
+                    videoPlayer.Source = new Uri(Path.GetFullPath(DefaultVideoPath));
+                    videoPlayer.Play();
+                }
             }
+            catch { }
+        }
+
+        private bool IsVideoFile(string path)
+        {
+            string ext = Path.GetExtension(path).ToLower();
+            return ext == ".mp4" || ext == ".wmv" || ext == ".avi" || ext == ".mov" || ext == ".mkv";
         }
 
         private void OnMediaEnded(object? sender, RoutedEventArgs e)

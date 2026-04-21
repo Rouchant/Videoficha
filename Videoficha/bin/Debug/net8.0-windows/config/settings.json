@@ -1,0 +1,13 @@
+{
+  "SelectedVideoPath": "Assets/Samples/landing-generic.mp4",
+  "SKU": "SKU-000000",
+  "ShowSKU": false,
+  "ListPrice": "$0.00",
+  "PromoPrice": "$0.00",
+  "ShowPrice": false,
+  "StrikethroughListPrice": false,
+  "CTAText": "EXPLORA",
+  "DistributorLogoPath": "",
+  "ShowDistributorLogo": true,
+  "InactivityVideoPath": "Assets/Samples/promo-generic.mp4"
+}

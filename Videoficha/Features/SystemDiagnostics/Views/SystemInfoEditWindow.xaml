@@ -3,32 +3,76 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Editar Especificaciones" SizeToContent="Height" Width="450" 
         Background="#121212" WindowStartupLocation="CenterOwner">
+    <Window.Resources>
+        <Style x:Key="RestoreButtonStyle" TargetType="Button">
+            <Setter Property="Content" Value="↺"/>
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="Margin" Value="10,0,0,0"/>
+            <Setter Property="Background" Value="#222"/>
+            <Setter Property="Foreground" Value="#0292D8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#444"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+    </Window.Resources>
+    
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="25">
             <TextBlock Text="EDITAR ESPECIFICACIONES" Foreground="#0292D8" FontWeight="Bold" Margin="0,0,0,20" HorizontalAlignment="Center"/>
 
             <TextBlock Text="Modelo" Foreground="#888" Margin="0,10,0,5"/>
-            <TextBox Text="{Binding SystemSpec.Model, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <TextBox Text="{Binding Model, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
+                <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="Model" Click="RestoreButton_Click"/>
+            </Grid>
 
             <TextBlock Text="Procesador" Foreground="#888" Margin="0,10,0,5"/>
-            <TextBox Text="{Binding SystemSpec.Processor, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <TextBox Text="{Binding Processor, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
+                <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="Processor" Click="RestoreButton_Click"/>
+            </Grid>
 
             <TextBlock Text="Memoria RAM" Foreground="#888" Margin="0,10,0,5"/>
-            <TextBox Text="{Binding SystemSpec.RAM, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <TextBox Text="{Binding RAM, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
+                <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="RAM" Click="RestoreButton_Click"/>
+            </Grid>
 
             <TextBlock Text="Almacenamiento" Foreground="#888" Margin="0,10,0,5"/>
-            <TextBox Text="{Binding SystemSpec.Storage, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <TextBox Text="{Binding Storage, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
+                <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="Storage" Click="RestoreButton_Click"/>
+            </Grid>
 
             <TextBlock Text="Pantalla" Foreground="#888" Margin="0,10,0,5"/>
-            <TextBox Text="{Binding SystemSpec.Display, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <TextBox Text="{Binding Display, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
+                <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="Display" Click="RestoreButton_Click"/>
+            </Grid>
 
             <TextBlock Text="Gráficos" Foreground="#888" Margin="0,10,0,5"/>
-            <TextBox Text="{Binding SystemSpec.Graphics, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <TextBox Text="{Binding Graphics, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
+                <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="Graphics" Click="RestoreButton_Click"/>
+            </Grid>
 
             <TextBlock Text="Sistema" Foreground="#888" Margin="0,10,0,5"/>
-            <TextBox Text="{Binding SystemSpec.OS, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <TextBox Text="{Binding OS, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
+                <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="OS" Click="RestoreButton_Click"/>
+            </Grid>
 
-            <Button Content="GUARDAR CAMBIOS" Click="SaveButton_Click" Margin="0,30,0,0" Padding="10" Background="#0292D8" Foreground="White" FontWeight="Bold" BorderThickness="0"/>
+            <Button Content="GUARDAR CAMBIOS" Click="SaveButton_Click" Margin="0,30,0,0" Padding="12" Background="#0292D8" Foreground="White" FontWeight="Bold" BorderThickness="0" Cursor="Hand"/>
         </StackPanel>
     </ScrollViewer>
 </Window>

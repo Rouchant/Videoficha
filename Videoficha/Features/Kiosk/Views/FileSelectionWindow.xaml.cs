@@ -3,7 +3,7 @@ using System.Windows;
 using Microsoft.Win32;
 using Videoficha.Features.Kiosk.ViewModels;
 using Videoficha.Infrastructure.Services;
-using Videoficha.Features.SystemDiagnostics.Views;
+using System.Windows.Controls;
 
 namespace Videoficha.Features.Kiosk.Views
 {
@@ -16,7 +16,7 @@ namespace Videoficha.Features.Kiosk.Views
         public FileSelectionWindow()
         {
             InitializeComponent();
-            _viewModel = new FileSelectionViewModel(new ConfigService());
+            _viewModel = new FileSelectionViewModel(new ConfigService(), new SystemProvider());
             DataContext = _viewModel;
         }
 
@@ -35,10 +35,34 @@ namespace Videoficha.Features.Kiosk.Views
             _viewModel.SelectDistributorLogo();
         }
 
-        private void EditSpecsButton_Click(object sender, RoutedEventArgs e)
+        private async void RestoreButton_Click(object sender, RoutedEventArgs e)
         {
-            var editWindow = new SystemInfoEditWindow { Owner = this };
-            editWindow.ShowDialog();
+            if (sender is Button btn && btn.Tag is string fieldName)
+            {
+                btn.IsEnabled = false;
+                await _viewModel.RestoreFieldAsync(fieldName);
+                btn.IsEnabled = true;
+            }
+        }
+
+        private void SelectInactivityVideoButton_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.SelectInactivityVideo();
+        }
+
+        private void RestoreMainVideoButton_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.RestoreDefaultMainVideo();
+        }
+
+        private void RestoreInactivityVideoButton_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.RestoreDefaultInactivityVideo();
+        }
+
+        private void RestoreLogoButton_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.RestoreDefaultLogo();
         }
 
         private void OkButton_Click(object sender, RoutedEventArgs e)
@@ -46,6 +70,12 @@ namespace Videoficha.Features.Kiosk.Views
             _viewModel.Save();
             VideoFilePath = _viewModel.VideoPath;
             DialogResult = true;
+            Close();
+        }
+
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = false;
             Close();
         }
     }

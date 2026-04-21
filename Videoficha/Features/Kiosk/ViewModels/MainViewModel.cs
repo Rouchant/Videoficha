@@ -80,6 +80,8 @@ namespace Videoficha.Features.Kiosk.ViewModels
             else
             {
                 SystemSpec = savedSpec;
+                // Forzamos una limpieza por si el archivo guardado tiene el nombre "sucio"
+                SystemSpec.Processor = _systemProvider.CleanProcessorName(SystemSpec.Processor);
             }
 
             UpdateLogos();
@@ -88,35 +90,50 @@ namespace Videoficha.Features.Kiosk.ViewModels
 
         private void UpdateLogos()
         {
-            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            string imagesDir = Path.Combine(baseDir, "Assets", "Images");
-
-            // 1. CPU Logo
-            string cpuIcon = "intel.png";
-            if (SystemSpec.Processor.Contains("AMD", StringComparison.OrdinalIgnoreCase) || 
-                SystemSpec.Processor.Contains("Ryzen", StringComparison.OrdinalIgnoreCase))
-                cpuIcon = "amd.png";
-            CpuVendorIcon = Path.Combine(imagesDir, cpuIcon);
-
-            // 2. Manufacturer Logo (Auto-detection)
-            string manufacturer = GetManufacturerName();
-            string mfgFile = "hp.png"; // Default
-            if (manufacturer.Contains("HP", StringComparison.OrdinalIgnoreCase)) mfgFile = "hp.png";
-            else if (manufacturer.Contains("Lenovo", StringComparison.OrdinalIgnoreCase)) mfgFile = "lenovo.png";
-            else if (manufacturer.Contains("Acer", StringComparison.OrdinalIgnoreCase)) mfgFile = "acer.png";
-            else if (manufacturer.Contains("Asus", StringComparison.OrdinalIgnoreCase)) mfgFile = "asus.png";
-            else if (manufacturer.Contains("Samsung", StringComparison.OrdinalIgnoreCase)) mfgFile = "samsung.png";
-            
-            ManufacturerLogo = Path.Combine(imagesDir, mfgFile);
-
-            // 3. Distributor Logo (Custom or Default)
-            if (!string.IsNullOrEmpty(Settings.DistributorLogoPath) && File.Exists(Settings.DistributorLogoPath))
+            try
             {
-                DistributorLogo = Settings.DistributorLogoPath;
+                string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                string imagesDir = Path.Combine(baseDir, "Assets", "Images");
+
+                // 1. CPU Logo (Safe Check)
+                string cpuIcon = "intel.png";
+                string procName = SystemSpec.Processor ?? string.Empty;
+                if (procName.Contains("AMD", StringComparison.OrdinalIgnoreCase) || 
+                    procName.Contains("Ryzen", StringComparison.OrdinalIgnoreCase))
+                    cpuIcon = "amd.png";
+                
+                string cpuPath = Path.Combine(imagesDir, cpuIcon);
+                CpuVendorIcon = File.Exists(cpuPath) ? cpuPath : string.Empty;
+
+                // 2. Manufacturer Logo (Auto-detection with Fallback)
+                string manufacturer = GetManufacturerName();
+                string mfgFile = "hp.png"; // Default fallback
+                
+                if (manufacturer.Contains("HP", StringComparison.OrdinalIgnoreCase)) mfgFile = "hp.png";
+                else if (manufacturer.Contains("Lenovo", StringComparison.OrdinalIgnoreCase)) mfgFile = "lenovo.png";
+                else if (manufacturer.Contains("Acer", StringComparison.OrdinalIgnoreCase)) mfgFile = "acer.png";
+                else if (manufacturer.Contains("Asus", StringComparison.OrdinalIgnoreCase)) mfgFile = "asus.png";
+                else if (manufacturer.Contains("Samsung", StringComparison.OrdinalIgnoreCase)) mfgFile = "samsung.png";
+                
+                string mfgPath = Path.Combine(imagesDir, mfgFile);
+                ManufacturerLogo = File.Exists(mfgPath) ? mfgPath : string.Empty;
+
+                // 3. Distributor Logo (Visibility logic handled in XAML via ShowDistributorLogo)
+                if (!string.IsNullOrEmpty(Settings.DistributorLogoPath) && File.Exists(Settings.DistributorLogoPath))
+                {
+                    DistributorLogo = Settings.DistributorLogoPath;
+                }
+                else
+                {
+                    DistributorLogo = string.Empty;
+                }
             }
-            else
+            catch
             {
-                DistributorLogo = Path.Combine(imagesDir, "falabella.png"); // Default store
+                // En caso de error total, limpiar logos para no mostrar iconos de error
+                CpuVendorIcon = string.Empty;
+                ManufacturerLogo = string.Empty;
+                DistributorLogo = string.Empty;
             }
         }
 
@@ -136,10 +153,25 @@ namespace Videoficha.Features.Kiosk.ViewModels
             return "";
         }
 
+        public void ReloadSettings()
+        {
+            Settings = _configService.LoadSettings();
+            var savedSpec = _configService.LoadSystemSpec();
+            if (savedSpec != null)
+            {
+                SystemSpec = savedSpec;
+                SystemSpec.Processor = _systemProvider.CleanProcessorName(SystemSpec.Processor);
+            }
+            UpdateLogos();
+            OnPropertyChanged(nameof(Settings));
+            OnPropertyChanged(nameof(SystemSpec));
+        }
+
         public void SaveSettings()
         {
             _configService.SaveSettings(Settings);
-            UpdateLogos();
+            _configService.SaveSystemSpec(SystemSpec);
+            ReloadSettings();
         }
 
         protected void OnPropertyChanged([CallerMemberName] string? name = null)

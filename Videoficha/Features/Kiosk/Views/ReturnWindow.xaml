@@ -5,7 +5,7 @@
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         Topmost="True" ShowInTaskbar="False" WindowStartupLocation="Manual">
     
-    <Border Background="#CCFF00" CornerRadius="40" Margin="10">
+    <Border Background="#CCFF00" CornerRadius="0" Margin="10">
         <Border.Effect>
             <DropShadowEffect BlurRadius="15" ShadowDepth="0" Opacity="0.5"/>
         </Border.Effect>
