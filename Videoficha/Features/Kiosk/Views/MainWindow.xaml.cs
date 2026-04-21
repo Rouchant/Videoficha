@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
+using System.Threading.Tasks;
 using Videoficha.Features.Kiosk.ViewModels;
 using Videoficha.Infrastructure.Services;
 
@@ -17,10 +18,51 @@ namespace Videoficha.Features.Kiosk.Views
         private const uint ES_SYSTEM_REQUIRED = 0x00000001;
         private const uint ES_DISPLAY_REQUIRED = 0x00000002;
 
+        [DllImport("user32.dll")]
+        static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, int dwExtraInfo);
+
+        private const byte VK_ESCAPE = 0x1B;
+        private const uint KEYEVENTF_KEYUP = 0x0002;
+
+        [DllImport("user32.dll")]
+        static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+
+        private static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
+        private const uint SWP_NOMOVE = 0x0002;
+        private const uint SWP_NOSIZE = 0x0001;
+        private const uint SWP_SHOWWINDOW = 0x0040;
+
+        [StructLayout(LayoutKind.Sequential)]
+        struct LASTINPUTINFO
+        {
+            public uint cbSize;
+            public uint dwTime;
+        }
+
+        private static int GetIdleTimeInSeconds()
+        {
+            LASTINPUTINFO lastInputInfo = new LASTINPUTINFO();
+            lastInputInfo.cbSize = (uint)Marshal.SizeOf(lastInputInfo);
+            lastInputInfo.dwTime = 0;
+
+            if (GetLastInputInfo(ref lastInputInfo))
+            {
+                return (int)((uint)Environment.TickCount - lastInputInfo.dwTime) / 1000;
+            }
+            return 0;
+        }
+
         private readonly MainViewModel _viewModel;
         private int _adminClickCount = 0;
         private DispatcherTimer _adminClickTimer;
         private DispatcherTimer _inactivityTimer;
+        private Point _lastMousePosition;
+        private Window? _returnWindow;
+        private bool _isSystemGeneratingInput;
 
         private readonly string BackgroundVideoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Samples", "background-generic.mp4");
         private readonly string DefaultVideoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Samples", "landing-generic.mp4");
@@ -35,6 +77,15 @@ namespace Videoficha.Features.Kiosk.Views
             _viewModel = new MainViewModel(systemProvider, configService);
             DataContext = _viewModel;
 
+            promoVideo.MediaFailed += (s, e) => {
+                // Si falla el video personalizado, intentar el genérico
+                if (promoVideo.Source?.LocalPath != PromoVideoPath)
+                {
+                    promoVideo.Source = new Uri(PromoVideoPath);
+                    promoVideo.Play();
+                }
+            };
+
             this.Loaded += MainWindow_Loaded;
 
             // Admin Timer
@@ -42,9 +93,9 @@ namespace Videoficha.Features.Kiosk.Views
             _adminClickTimer.Interval = TimeSpan.FromSeconds(2);
             _adminClickTimer.Tick += (s, e) => { _adminClickCount = 0; _adminClickTimer.Stop(); };
 
-            // Inactivity Timer (30 segundos por defecto)
+            // Timer para inactividad (Chequeo global cada segundo)
             _inactivityTimer = new DispatcherTimer();
-            _inactivityTimer.Interval = TimeSpan.FromSeconds(30);
+            _inactivityTimer.Interval = TimeSpan.FromSeconds(1);
             _inactivityTimer.Tick += InactivityTimer_Tick;
             _inactivityTimer.Start();
         }
@@ -93,10 +144,21 @@ namespace Videoficha.Features.Kiosk.Views
 
                 if (File.Exists(promoPath) && IsVideoFile(promoPath))
                 {
-                    promoVideo.Source = new Uri(Path.GetFullPath(promoPath));
-                    promoVideo.Play();
+                    // 1. Detener el video de la ficha para liberar recursos
+                    videoPlayer.Stop();
+                    
+                    // 2. Mostrar el contenedor
                     PromoGrid.Visibility = Visibility.Visible;
                     MainContentGrid.Visibility = Visibility.Collapsed;
+                    
+                    // 3. Forzar recarga limpia
+                    promoVideo.Source = null;
+                    promoVideo.Source = new Uri(Path.GetFullPath(promoPath));
+                    promoVideo.Volume = 1.0;
+                    
+                    // 4. Iniciar reproducción
+                    promoVideo.Position = TimeSpan.Zero;
+                    promoVideo.Play();
                 }
             }
             catch { }
@@ -105,25 +167,88 @@ namespace Videoficha.Features.Kiosk.Views
         private void StopPromoVideo()
         {
             promoVideo.Stop();
+            promoVideo.Source = null; // Liberar archivo
+            
             PromoGrid.Visibility = Visibility.Collapsed;
             MainContentGrid.Visibility = Visibility.Visible;
+            
+            // Reanudar el video de la ficha
+            PlayDefaultVideo();
         }
 
         private void OnUserActivity(object sender, EventArgs e)
         {
-            _inactivityTimer.Stop();
-            _inactivityTimer.Start();
+            if (_isSystemGeneratingInput) return;
 
+            if (e is MouseEventArgs mouseArgs)
+            {
+                Point currentPos = mouseArgs.GetPosition(this);
+                Vector diff = currentPos - _lastMousePosition;
+                
+                // Umbral de 5 píxeles solicitado por el usuario
+                if (Math.Abs(diff.X) < 5 && Math.Abs(diff.Y) < 5) return;
+                
+                _lastMousePosition = currentPos;
+            }
+
+            // Si hay CUALQUIER actividad (ratón > 5px o Teclado)
             if (PromoGrid.Visibility == Visibility.Visible)
             {
                 StopPromoVideo();
             }
+            
+            _inactivityTimer.Stop();
+            _inactivityTimer.Start();
         }
 
         private void InactivityTimer_Tick(object? sender, EventArgs e)
         {
-            _inactivityTimer.Stop();
-            PlayPromoVideo();
+            // Verificamos la inactividad global de Windows (independiente de si la app está minimizada)
+            int idleTime = GetIdleTimeInSeconds();
+            int threshold = 30; // Volvemos a los 30 segundos estándar
+
+            if (idleTime >= threshold)
+            {
+                // Bloqueamos la detección de actividad para que el ESC no nos quite el video
+                _isSystemGeneratingInput = true;
+                
+                try
+                {
+                    // Simular pulsación de ESC para cerrar Menú Inicio o cualquier popup del sistema
+                    keybd_event(VK_ESCAPE, 0, 0, 0); // Down
+                    keybd_event(VK_ESCAPE, 0, KEYEVENTF_KEYUP, 0); // Up
+
+                    // Si la ventana no está visiblemente al frente, forzarla
+                    if (this.WindowState == WindowState.Minimized)
+                    {
+                        this.WindowState = WindowState.Maximized;
+                    }
+
+                    // Fuerza bruta para ponerse encima del Menú Inicio y todo lo demás
+                    var helper = new System.Windows.Interop.WindowInteropHelper(this);
+                    SetWindowPos(helper.Handle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+                    
+                    this.Activate();
+                    this.Focus();
+
+                    if (_returnWindow != null)
+                    {
+                        _returnWindow.Close();
+                        _returnWindow = null;
+                    }
+
+                    // Si no se está reproduciendo ya el video de promoción, iniciarlo
+                    if (PromoGrid.Visibility != Visibility.Visible)
+                    {
+                        PlayPromoVideo();
+                    }
+                }
+                finally
+                {
+                    // Pequeño retardo para asegurar que el evento de teclado se procese antes de liberar el flag
+                    Task.Delay(100).ContinueWith(_ => _isSystemGeneratingInput = false);
+                }
+            }
         }
 
         private void OnBackgroundMediaEnded(object sender, RoutedEventArgs e)
@@ -155,8 +280,10 @@ namespace Videoficha.Features.Kiosk.Views
         private void Explore_Click(object sender, RoutedEventArgs e)
         {
             this.WindowState = WindowState.Minimized;
-            var returnButton = new ReturnWindow(this);
-            returnButton.Show();
+            
+            _returnWindow?.Close(); // Cerrar si ya existe
+            _returnWindow = new ReturnWindow(this);
+            _returnWindow.Show();
         }
 
         private void OpenConfig()

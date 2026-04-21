@@ -1,13 +1,14 @@
 {
   "SelectedVideoPath": "Assets/Samples/landing-generic.mp4",
   "SKU": "SKU-000000",
-  "ShowSKU": false,
+  "ShowSKU": true,
   "ListPrice": "$0.00",
   "PromoPrice": "$0.00",
-  "ShowPrice": false,
-  "StrikethroughListPrice": false,
+  "ShowPrice": true,
+  "StrikethroughListPrice": true,
   "CTAText": "EXPLORA",
-  "DistributorLogoPath": "",
+  "DistributorLogoPath": "C:\\Users\\jmema\\Proyectos\\Zenit-Tauri\\public\\assets\\logos\\asus.png",
   "ShowDistributorLogo": true,
-  "InactivityVideoPath": "Assets/Samples/promo-generic.mp4"
+  "InactivityVideoPath": "Assets/Samples/promo-generic.mp4",
+  "AccentColor": "#00E5FF"
 }

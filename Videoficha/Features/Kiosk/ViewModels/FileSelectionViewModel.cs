@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -152,6 +153,21 @@ namespace Videoficha.Features.Kiosk.ViewModels
             InactivityVideoPath = "Assets/Samples/promo-generic.mp4";
         }
 
+        public string AccentColor
+        {
+            get => _settings.AccentColor;
+            set { _settings.AccentColor = value; OnPropertyChanged(); }
+        }
+
+        public List<ColorTheme> AccentThemes => new List<ColorTheme>
+        {
+            new ColorTheme { Name = "Verde Lima", Hex = "#CCFF00" },
+            new ColorTheme { Name = "Azul Eléctrico", Hex = "#00E5FF" },
+            new ColorTheme { Name = "Morado Eléctrico", Hex = "#BF40BF" },
+            new ColorTheme { Name = "Rojo", Hex = "#FF3131" },
+            new ColorTheme { Name = "Amarillo", Hex = "#FFD700" }
+        };
+
         public void Save()
         {
             _configService.SaveSettings(_settings);
@@ -162,5 +178,11 @@ namespace Videoficha.Features.Kiosk.ViewModels
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
+    }
+
+    public class ColorTheme
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Hex { get; set; } = string.Empty;
     }
 }

@@ -10,6 +10,7 @@ namespace Videoficha.Features.Kiosk.Views
         {
             InitializeComponent();
             _mainWindow = mainWindow;
+            this.DataContext = _mainWindow.DataContext;
             
             // Posicionar en la esquina inferior derecha
             double screenWidth = SystemParameters.WorkArea.Width;

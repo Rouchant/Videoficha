@@ -13,5 +13,6 @@ namespace Videoficha.Models
         public string DistributorLogoPath { get; set; } = string.Empty;
         public bool ShowDistributorLogo { get; set; } = false;
         public string InactivityVideoPath { get; set; } = string.Empty;
+        public string AccentColor { get; set; } = "#CCFF00";
     }
 }

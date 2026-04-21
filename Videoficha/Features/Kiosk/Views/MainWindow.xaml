@@ -1,11 +1,12 @@
 <Window x:Class="Videoficha.Features.Kiosk.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:d="http://schemas.expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="Videoficha" WindowStyle="None" WindowState="Maximized" ResizeMode="NoResize" Topmost="True"
-        Background="#080808" MouseMove="OnUserActivity" KeyDown="OnUserActivity" Closing="MainWindow_Closing">
+        Background="#080808" PreviewMouseMove="OnUserActivity" PreviewKeyDown="OnUserActivity" Closing="MainWindow_Closing"
+        SnapsToDevicePixels="True" UseLayoutRounding="True">
     
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
@@ -26,6 +27,7 @@
             <Setter Property="Margin" Value="25,0,20,0"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="RenderOptions.BitmapScalingMode" Value="HighQuality"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 
         <Style x:Key="CardLabelStyle" TargetType="TextBlock">
@@ -53,9 +55,11 @@
             <!-- HEADER -->
             <Grid Grid.Row="0" Margin="0,0,0,40">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                    <Image Source="{Binding ManufacturerLogo}" Height="60" Width="Auto" Margin="0,0,30,0" Stretch="Uniform"/>
+                    <Image Source="{Binding ManufacturerLogo}" Height="60" Width="Auto" Margin="0,0,30,0" Stretch="Uniform"
+                           RenderOptions.BitmapScalingMode="HighQuality" SnapsToDevicePixels="True"/>
                     <Image Source="{Binding DistributorLogo}" Height="60" Width="Auto" Stretch="Uniform" Opacity="0.8"
-                           Visibility="{Binding Settings.ShowDistributorLogo, Converter={StaticResource BoolToVis}}"/>
+                           Visibility="{Binding Settings.ShowDistributorLogo, Converter={StaticResource BoolToVis}}"
+                           RenderOptions.BitmapScalingMode="HighQuality" SnapsToDevicePixels="True"/>
                 </StackPanel>
 
                 <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center">
@@ -143,7 +147,7 @@
 
             <!-- FOOTER -->
             <Grid Grid.Row="2" Margin="0,40,0,0">
-                <Button HorizontalAlignment="Left" Width="240" Height="80" Background="#CCFF00" BorderThickness="0" Click="Explore_Click">
+                <Button HorizontalAlignment="Left" Width="240" Height="80" Background="{Binding Settings.AccentColor}" BorderThickness="0" Click="Explore_Click">
                     <Button.Resources><Style TargetType="Border"><Setter Property="CornerRadius" Value="0"/></Style></Button.Resources>
                     <TextBlock Text="{Binding Settings.CTAText}" Foreground="Black" FontSize="22" FontWeight="ExtraBold"/>
                 </Button>
@@ -160,12 +164,12 @@
                             </Style>
                         </TextBlock.Style>
                     </TextBlock>
-                    <TextBlock Text="{Binding Settings.PromoPrice}" Foreground="#CCFF00" FontSize="52" FontWeight="ExtraBold" TextAlignment="Right" Margin="0,-5,0,0"/>
+                    <TextBlock Text="{Binding Settings.PromoPrice}" Foreground="{Binding Settings.AccentColor}" FontSize="52" FontWeight="ExtraBold" TextAlignment="Right" Margin="0,-5,0,0"/>
                 </StackPanel>
             </Grid>
         </Grid>
 
-        <Grid Name="PromoGrid" Visibility="Collapsed">
+        <Grid Name="PromoGrid" Visibility="Collapsed" Background="Black" Panel.ZIndex="999" Cursor="None">
             <MediaElement Name="promoVideo" LoadedBehavior="Manual" IsMuted="True" MediaEnded="OnPromoMediaEnded" Stretch="UniformToFill" />
         </Grid>
 
