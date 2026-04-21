@@ -1,0 +1,32 @@
+# .NET Core
+**/bin/
+**/obj/
+**/publish/
+*.exe
+*.pdb
+*.dll
+*.user
+*.suo
+*.sln.docstates
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/
+
+# Config local de la app
+Videoficha/bin/Debug/net8.0-windows/config/
+Videoficha/publish/config/
+
+# Rider / JetBrains
+.idea/
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini

@@ -7,6 +7,8 @@ using System.Windows.Threading;
 using System.Threading.Tasks;
 using Videoficha.Features.Kiosk.ViewModels;
 using Videoficha.Infrastructure.Services;
+using LibVLCSharp.Shared;
+using System.Diagnostics;
 
 namespace Videoficha.Features.Kiosk.Views
 {
@@ -64,27 +66,45 @@ namespace Videoficha.Features.Kiosk.Views
         private Window? _returnWindow;
         private bool _isSystemGeneratingInput;
 
+        // LibVLC Objects
+        private LibVLC? _libVLC;
+        private MediaPlayer? _backgroundPlayer;
+        private MediaPlayer? _mainPlayer;
+        private MediaPlayer? _promoPlayer;
+
         private readonly string BackgroundVideoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Samples", "background-generic.mp4");
         private readonly string DefaultVideoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Samples", "landing-generic.mp4");
         private readonly string PromoVideoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Samples", "promo-generic.mp4");
 
         public MainWindow()
         {
+            // 1. Prioridad de Proceso Alta para Kiosko
+            Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High;
+
             InitializeComponent();
             
+            // 2. Inicializar LibVLC
+            Core.Initialize();
+            _libVLC = new LibVLC("--no-osd", "--quiet");
+
+            _backgroundPlayer = new MediaPlayer(_libVLC);
+            _mainPlayer = new MediaPlayer(_libVLC);
+            _promoPlayer = new MediaPlayer(_libVLC);
+
+            // Asignar MediaPlayers a los VideoViews
+            backgroundView.MediaPlayer = _backgroundPlayer;
+            videoView.MediaPlayer = _mainPlayer;
+            promoView.MediaPlayer = _promoPlayer;
+
+            // Looping
+            _backgroundPlayer.EndReached += (s, e) => ThreadPool_LoopVideo(_backgroundPlayer, BackgroundVideoPath);
+            _mainPlayer.EndReached += (s, e) => ThreadPool_LoopVideo(_mainPlayer, GetCurrentMainVideoPath());
+            _promoPlayer.EndReached += (s, e) => ThreadPool_LoopVideo(_promoPlayer, GetCurrentPromoVideoPath());
+
             var systemProvider = new SystemProvider();
             var configService = new ConfigService();
             _viewModel = new MainViewModel(systemProvider, configService);
             DataContext = _viewModel;
-
-            promoVideo.MediaFailed += (s, e) => {
-                // Si falla el video personalizado, intentar el genérico
-                if (promoVideo.Source?.LocalPath != PromoVideoPath)
-                {
-                    promoVideo.Source = new Uri(PromoVideoPath);
-                    promoVideo.Play();
-                }
-            };
 
             this.Loaded += MainWindow_Loaded;
 
@@ -93,7 +113,7 @@ namespace Videoficha.Features.Kiosk.Views
             _adminClickTimer.Interval = TimeSpan.FromSeconds(2);
             _adminClickTimer.Tick += (s, e) => { _adminClickCount = 0; _adminClickTimer.Stop(); };
 
-            // Timer para inactividad (Chequeo global cada segundo)
+            // Timer para inactividad
             _inactivityTimer = new DispatcherTimer();
             _inactivityTimer.Interval = TimeSpan.FromSeconds(1);
             _inactivityTimer.Tick += InactivityTimer_Tick;
@@ -104,61 +124,82 @@ namespace Videoficha.Features.Kiosk.Views
         {
             SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED);
             
-            PlayBackgroundVideo();
+            PlayKioskVideo(_backgroundPlayer, BackgroundVideoPath, isMuted: true);
 
             await _viewModel.InitializeAsync();
 
-            if (!string.IsNullOrEmpty(_viewModel.Settings.SelectedVideoPath) && File.Exists(_viewModel.Settings.SelectedVideoPath))
+            string videoToPlay = (!string.IsNullOrEmpty(_viewModel.Settings.SelectedVideoPath) && File.Exists(_viewModel.Settings.SelectedVideoPath))
+                                 ? _viewModel.Settings.SelectedVideoPath : DefaultVideoPath;
+            
+            PlayKioskVideo(_mainPlayer, videoToPlay, isMuted: true);
+        }
+
+        private void PlayKioskVideo(MediaPlayer? player, string path, bool isMuted = false)
+        {
+            if (player == null || string.IsNullOrEmpty(path) || !File.Exists(path)) return;
+
+            try
             {
-                PlaySelectedVideo(_viewModel.Settings.SelectedVideoPath);
+                // Limpiar media anterior para evitar fugas de memoria
+                var oldMedia = player.Media;
+                
+                using (var media = new Media(_libVLC, path, FromType.FromPath))
+                {
+                    // 1. Optimizaciones de Kiosko
+                    media.AddOption(":file-caching=150"); 
+                    media.AddOption(":hwdec=auto"); // Decodificación por hardware
+                    if (isMuted) media.AddOption(":no-audio");
+
+                    player.Play(media);
+                }
+
+                if (oldMedia != null) oldMedia.Dispose();
             }
-            else
+            catch (Exception ex)
             {
-                PlayDefaultVideo();
+                Debug.WriteLine($"Error VLC: {ex.Message}");
             }
         }
 
-        private void PlayBackgroundVideo()
+        private void ThreadPool_LoopVideo(MediaPlayer? player, string path)
         {
-            try
-            {
-                // El video de fondo (backgroundVideo) es solo estético detrás de todo.
-                if (File.Exists(BackgroundVideoPath))
+            // LibVLC EndReached ocurre en un thread distinto
+            Task.Run(() => {
+                if (player != null && File.Exists(path))
                 {
-                    backgroundVideo.Source = new Uri(Path.GetFullPath(BackgroundVideoPath));
-                    backgroundVideo.Play();
+                    PlayKioskVideo(player, path, isMuted: player == _backgroundPlayer || player == _mainPlayer);
                 }
-            }
-            catch { }
+            });
+        }
+
+        private string GetCurrentMainVideoPath()
+        {
+            if (!string.IsNullOrEmpty(_viewModel.Settings.SelectedVideoPath) && File.Exists(_viewModel.Settings.SelectedVideoPath))
+                return _viewModel.Settings.SelectedVideoPath;
+            return DefaultVideoPath;
+        }
+
+        private string GetCurrentPromoVideoPath()
+        {
+            string promoPath = _viewModel.Settings.InactivityVideoPath;
+            if (string.IsNullOrEmpty(promoPath) || !File.Exists(promoPath))
+                return PromoVideoPath;
+            return promoPath;
         }
 
         private void PlayPromoVideo()
         {
             try
             {
-                string promoPath = _viewModel.Settings.InactivityVideoPath;
-                if (string.IsNullOrEmpty(promoPath) || !File.Exists(promoPath))
+                string promoPath = GetCurrentPromoVideoPath();
+                if (File.Exists(promoPath))
                 {
-                    promoPath = PromoVideoPath; // Fallback al genérico
-                }
-
-                if (File.Exists(promoPath) && IsVideoFile(promoPath))
-                {
-                    // 1. Detener el video de la ficha para liberar recursos
-                    videoPlayer.Stop();
+                    _mainPlayer?.Stop();
                     
-                    // 2. Mostrar el contenedor
                     PromoGrid.Visibility = Visibility.Visible;
                     MainContentGrid.Visibility = Visibility.Collapsed;
                     
-                    // 3. Forzar recarga limpia
-                    promoVideo.Source = null;
-                    promoVideo.Source = new Uri(Path.GetFullPath(promoPath));
-                    promoVideo.Volume = 1.0;
-                    
-                    // 4. Iniciar reproducción
-                    promoVideo.Position = TimeSpan.Zero;
-                    promoVideo.Play();
+                    PlayKioskVideo(_promoPlayer, promoPath, isMuted: true);
                 }
             }
             catch { }
@@ -166,14 +207,12 @@ namespace Videoficha.Features.Kiosk.Views
 
         private void StopPromoVideo()
         {
-            promoVideo.Stop();
-            promoVideo.Source = null; // Liberar archivo
+            _promoPlayer?.Stop();
             
             PromoGrid.Visibility = Visibility.Collapsed;
             MainContentGrid.Visibility = Visibility.Visible;
             
-            // Reanudar el video de la ficha
-            PlayDefaultVideo();
+            PlayKioskVideo(_mainPlayer, GetCurrentMainVideoPath(), isMuted: true);
         }
 
         private void OnUserActivity(object sender, EventArgs e)
@@ -251,17 +290,7 @@ namespace Videoficha.Features.Kiosk.Views
             }
         }
 
-        private void OnBackgroundMediaEnded(object sender, RoutedEventArgs e)
-        {
-            backgroundVideo.Position = TimeSpan.Zero;
-            backgroundVideo.Play();
-        }
 
-        private void OnPromoMediaEnded(object sender, RoutedEventArgs e)
-        {
-            promoVideo.Position = TimeSpan.Zero;
-            promoVideo.Play();
-        }
 
         private void AdminTrigger_Click(object sender, RoutedEventArgs e)
         {
@@ -294,10 +323,7 @@ namespace Videoficha.Features.Kiosk.Views
                 if (configWindow.ShowDialog() == true)
                 {
                     _viewModel.ReloadSettings();
-                    if (!string.IsNullOrEmpty(configWindow.VideoFilePath))
-                    {
-                        PlaySelectedVideo(configWindow.VideoFilePath);
-                    }
+                    PlayKioskVideo(_mainPlayer, GetCurrentMainVideoPath(), isMuted: true);
                 }
             }
             catch (Exception ex)
@@ -306,47 +332,14 @@ namespace Videoficha.Features.Kiosk.Views
             }
         }
 
-        private void PlaySelectedVideo(string videoPath)
-        {
-            try
-            {
-                if (videoPlayer != null && !string.IsNullOrEmpty(videoPath) && File.Exists(videoPath) && IsVideoFile(videoPath))
-                {
-                    videoPlayer.Source = new Uri(Path.GetFullPath(videoPath));
-                    videoPlayer.Play();
-                }
-            }
-            catch { }
-        }
 
-        private void PlayDefaultVideo()
-        {
-            try
-            {
-                if (File.Exists(DefaultVideoPath) && IsVideoFile(DefaultVideoPath))
-                {
-                    videoPlayer.Source = new Uri(Path.GetFullPath(DefaultVideoPath));
-                    videoPlayer.Play();
-                }
-            }
-            catch { }
-        }
-
-        private bool IsVideoFile(string path)
-        {
-            string ext = Path.GetExtension(path).ToLower();
-            return ext == ".mp4" || ext == ".wmv" || ext == ".avi" || ext == ".mov" || ext == ".mkv";
-        }
-
-        private void OnMediaEnded(object? sender, RoutedEventArgs e)
-        {
-            videoPlayer.Position = TimeSpan.Zero;
-            videoPlayer.Play();
-        }
 
         private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
-            // Limpieza
+            _backgroundPlayer?.Dispose();
+            _mainPlayer?.Dispose();
+            _promoPlayer?.Dispose();
+            _libVLC?.Dispose();
         }
     }
 }

@@ -26,15 +26,16 @@ namespace Videoficha.Infrastructure.Services
                         }
                     }
 
-                    // RAM
-                    using (var searcher = new ManagementObjectSearcher("select Capacity from Win32_PhysicalMemory"))
+                    // RAM (Método robusto para VMs y Real Hardware)
+                    using (var searcher = new ManagementObjectSearcher("select TotalPhysicalMemory from Win32_ComputerSystem"))
                     {
-                        long totalCapacity = 0;
                         foreach (var obj in searcher.Get())
                         {
-                            totalCapacity += Convert.ToInt64(obj["Capacity"]);
+                            long totalBytes = Convert.ToInt64(obj["TotalPhysicalMemory"]);
+                            double totalGB = totalBytes / 1024.0 / 1024.0 / 1024.0;
+                            // Redondeo al entero más cercano (ej: 15.9 -> 16)
+                            spec.RAM = $"{(int)Math.Round(totalGB)} GB RAM";
                         }
-                        spec.RAM = $"{(totalCapacity / 1024 / 1024 / 1024)} GB RAM";
                     }
 
                     // Almacenamiento
@@ -44,7 +45,10 @@ namespace Videoficha.Infrastructure.Services
                         bool hasSSD = false;
                         foreach (var obj in searcher.Get())
                         {
-                            totalBytes += Convert.ToInt64(obj["Size"]);
+                            long size = Convert.ToInt64(obj["Size"]);
+                            if (size <= 0) continue;
+                            
+                            totalBytes += size;
                             string model = obj["Model"]?.ToString()?.ToUpper() ?? "";
                             string mediaType = obj["MediaType"]?.ToString()?.ToUpper() ?? "";
                             
@@ -61,26 +65,36 @@ namespace Videoficha.Infrastructure.Services
                     {
                         foreach (var obj in searcher.Get())
                         {
-                            spec.Graphics = obj["Name"].ToString() ?? "Integrados";
-                            break;
+                            string name = obj["Name"]?.ToString() ?? "";
+                            // Evitar "Microsoft Remote Display" o similares si hay otros
+                            if (name.Contains("Microsoft") && !name.Contains("Surface") && string.IsNullOrEmpty(spec.Graphics))
+                            {
+                                spec.Graphics = "Gráficos Integrados";
+                            }
+                            else if (!string.IsNullOrEmpty(name))
+                            {
+                                spec.Graphics = name;
+                                break; // Priorizamos la primera GPU real
+                            }
                         }
+                        if (string.IsNullOrEmpty(spec.Graphics)) spec.Graphics = "Gráficos Integrados";
                     }
 
                     // Pantalla (Resolución Nativa)
                     try 
                     {
-                        using (var searcher = new ManagementObjectSearcher("root\\CIMV2", "SELECT CurrentHorizontalResolution, CurrentVerticalResolution FROM Win32_VideoController"))
+                        using (var searcher = new ManagementObjectSearcher("root\\CIMV2", "SELECT CurrentHorizontalResolution FROM Win32_VideoController"))
                         {
                             foreach (var obj in searcher.Get())
                             {
                                 int width = Convert.ToInt32(obj["CurrentHorizontalResolution"]);
-                                int height = Convert.ToInt32(obj["CurrentVerticalResolution"]);
-                                
+                                if (width <= 0) continue;
+
                                 if (width >= 3840) spec.Display = "4K Ultra HD";
                                 else if (width >= 2560) spec.Display = "QHD 2K";
                                 else if (width >= 1920) spec.Display = "Full HD 1080p";
                                 else if (width >= 1360) spec.Display = "HD 720p";
-                                else spec.Display = $"{width} x {height}";
+                                else spec.Display = "Full HD 1080p";
                                 break;
                             }
                         }
@@ -92,13 +106,7 @@ namespace Videoficha.Infrastructure.Services
                     {
                         foreach (var obj in searcher.Get())
                         {
-                            string manufacturer = obj["Manufacturer"].ToString() ?? "";
-                            spec.Model = obj["Model"].ToString() ?? "PC Genérico";
-                            
-                            // Guardamos el fabricante en una propiedad extra o lo deducimos luego
-                            // Para mantener compatibilidad, podemos usar Model para guardar ambos temporalmente
-                            // o mejor aún, añadir el campo Manufacturer al SystemSpec si lo deseas.
-                            // Por ahora, asumiremos que el Model ya contiene información útil.
+                            spec.Model = obj["Model"]?.ToString() ?? "PC de Exhibición";
                         }
                     }
 

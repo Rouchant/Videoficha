@@ -1,47 +1,46 @@
 # Videoficha
 
-**Videoficha** es una aplicación de escritorio moderna desarrollada en .NET 8 con WPF, diseñada para funcionar como un kiosko multimedia y expositor de especificaciones técnicas de hardware.
-
-## 🚀 Arquitectura: Screaming Architecture + MVVM
-
-Este proyecto ha sido refactorizado siguiendo los principios de **Screaming Architecture**, donde la estructura de carpetas refleja las funcionalidades del negocio en lugar del framework.
-
-### Estructura de Carpetas
-- **`Features/`**: Módulos funcionales de la aplicación.
-  - `DisplayKiosk/`: Control de reproducción de video en bucle y visor de PDF.
-  - `SystemDiagnostics/`: Gestión y visualización de especificaciones técnicas del equipo.
-- **`Infrastructure/`**: Implementaciones técnicas y servicios.
-  - `Services/`: Lógica de obtención de hardware (WMI) y gestión de configuración.
-- **`Domain/Models/`**: Entidades de datos puras (SystemSpec, KioskSettings).
-- **`Shared/`**: Utilidades y extensiones comunes.
+**Videoficha** es una aplicación de escritorio premium desarrollada en .NET 8 con WPF y LibVLC, diseñada para funcionar como un kiosko multimedia autónomo y expositor de especificaciones técnicas de hardware en puntos de venta.
 
 ## ✨ Características Principales
 
-- **Bucle de Video**: Reproducción continua de contenido multimedia.
-- **Visor de PDF**: Integración con WebView2 para mostrar fichas técnicas.
-- **Detección de Hardware**: Obtención automática de CPU, RAM, GPU y Almacenamiento mediante WMI.
-- **Modo Kiosko**: Prevención de suspensión del sistema y shortcuts de administración.
-- **Configuración Persistente**: Guarda las selecciones de archivos en una carpeta `config/` local.
+- **Motor de Video LibVLC**: Reproducción ultra-estable mediante el motor de VLC, superando las limitaciones del MediaElement nativo.
+- **Bucle de Video Interactivo**: Transición fluida entre contenido multimedia de ficha técnica y video de inactividad (Attract Loop).
+- **Diseño Premium Moderno**: Interfaz con estilo **Glassmorphism**, layout optimizado para diferentes formatos de pantalla y esquinas cuadradas minimalistas.
+- **Detección de Hardware Robusta**: Obtención precisa de CPU, RAM (compatible con VMs), GPU y Almacenamiento con redondeo comercial.
+- **Modo Kiosko Total**: 
+    - Prioridad de proceso **Alta** asignada automáticamente para máxima fluidez.
+    - Prevención de suspensión del sistema.
+    - Ejecución en pantalla completa (Topmost) con recuperación ante inactividad.
+- **Panel de Administración Integrado**: Configuración visual de precios, SKU, temas de color y selección de archivos.
+
+## 🚀 Arquitectura y Optimización
+
+El proyecto está diseñado para funcionar 24/7 sin degradación de rendimiento:
+
+- **Decodificación por Hardware**: Uso de `:hwdec=auto` para minimizar el uso de CPU.
+- **Gestión de Memoria**: Liberación explícita de recursos de video en cada ciclo para evitar fugas de memoria (Anti-Leaks).
+- **Ligereza**: Eliminación de dependencias pesadas como WebView2 para reducir el consumo de RAM base.
+- **Compatibilidad VM**: Optimizado con renderizado por software y detección de hardware específica para entornos virtuales.
 
 ## 🛠️ Tecnologías
 
 - **Framework**: .NET 8 (WPF)
-- **Lenguaje**: C#
-- **Componentes**: 
-  - Microsoft.Web.WebView2 (Visor PDF)
-  - System.Management (Consultas WMI)
-- **Patrón**: MVVM (Model-View-ViewModel)
+- **Motor Multimedia**: LibVLCSharp + VideoLAN.LibVLC.Windows
+- **Detección**: System.Management (WMI)
+- **Recursos**: Iconografía embebida como recursos de ensamblado.
 
 ## 📋 Requisitos
 
 - Windows 10/11
 - .NET 8 Runtime
-- Microsoft Edge WebView2 Runtime
 
-## ⌨️ Atajos de Teclado (Admin)
+## 🔐 Acceso a Administración (Admin)
 
-- `Ctrl + S`: Abrir ventana de selección de archivos (Video/PDF).
-- `Ctrl + I`: Abrir ventana de edición manual de especificaciones.
+Para configurar el equipo:
+
+1.  **Gesto de acceso**: Realizar **4 toques rápidos** en la esquina superior derecha de la pantalla principal.
+2.  **Panel**: Permite editar precios, SKU, cambiar videos de loop y refrescar la detección de hardware.
 
 ---
-Desarrollado con ❤️ para la gestión eficiente de puntos de venta y exposición.
+Desarrollado con ❤️ para la gestión eficiente de puntos de venta y exposición técnica profesional.
