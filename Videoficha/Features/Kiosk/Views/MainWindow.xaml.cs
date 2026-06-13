@@ -7,7 +7,8 @@ using Microsoft.UI.Xaml.Input;
 using System.Threading.Tasks;
 using Videoficha.Features.Kiosk.ViewModels;
 using Videoficha.Infrastructure.Services;
-using LibVLCSharp.Shared;
+using Windows.Media.Playback;
+using Windows.Media.Core;
 using System.Diagnostics;
 
 namespace Videoficha.Features.Kiosk.Views
@@ -71,8 +72,7 @@ namespace Videoficha.Features.Kiosk.Views
         private Window? _returnWindow;
         private bool _isSystemGeneratingInput;
 
-        // LibVLC Objects
-        private LibVLC? _libVLC;
+        // Native Media Players
         private MediaPlayer? _backgroundPlayer;
         private MediaPlayer? _mainPlayer;
         private MediaPlayer? _promoPlayer;
@@ -91,23 +91,24 @@ namespace Videoficha.Features.Kiosk.Views
             // Configurar ventana modo Kiosko (fullscreen + topmost)
             ConfigureKioskWindow();
             
-            // 2. Inicializar LibVLC
-            Core.Initialize();
-            _libVLC = new LibVLC("--no-osd", "--quiet");
+            // 2. Inicializar Native Media Players
+            _backgroundPlayer = new MediaPlayer();
+            _mainPlayer = new MediaPlayer();
+            _promoPlayer = new MediaPlayer();
 
-            _backgroundPlayer = new MediaPlayer(_libVLC);
-            _mainPlayer = new MediaPlayer(_libVLC);
-            _promoPlayer = new MediaPlayer(_libVLC);
+            _backgroundPlayer.IsLoopingEnabled = true;
+            _backgroundPlayer.IsMuted = true;
 
-            // Asignar MediaPlayers a los VideoViews
-            backgroundView.MediaPlayer = _backgroundPlayer;
-            videoView.MediaPlayer = _mainPlayer;
-            promoView.MediaPlayer = _promoPlayer;
+            _mainPlayer.IsLoopingEnabled = true;
+            _mainPlayer.IsMuted = true;
 
-            // Looping
-            _backgroundPlayer.EndReached += (s, e) => ThreadPool_LoopVideo(_backgroundPlayer, BackgroundVideoPath);
-            _mainPlayer.EndReached += (s, e) => ThreadPool_LoopVideo(_mainPlayer, GetCurrentMainVideoPath());
-            _promoPlayer.EndReached += (s, e) => ThreadPool_LoopVideo(_promoPlayer, GetCurrentPromoVideoPath());
+            _promoPlayer.IsLoopingEnabled = true;
+            _promoPlayer.IsMuted = true;
+
+            // Asignar MediaPlayers a los MediaPlayerElements
+            backgroundView.SetMediaPlayer(_backgroundPlayer);
+            videoView.SetMediaPlayer(_mainPlayer);
+            promoView.SetMediaPlayer(_promoPlayer);
 
             var systemProvider = new SystemProvider();
             var configService = new ConfigService();
@@ -167,33 +168,19 @@ namespace Videoficha.Features.Kiosk.Views
 
             try
             {
-                var oldMedia = player.Media;
+                player.IsMuted = isMuted;
+                var oldSource = player.Source as IDisposable;
                 
-                using (var media = new Media(_libVLC, path, FromType.FromPath))
-                {
-                    media.AddOption(":file-caching=150"); 
-                    media.AddOption(":hwdec=auto");
-                    if (isMuted) media.AddOption(":no-audio");
+                var source = MediaSource.CreateFromUri(new Uri(path));
+                player.Source = source;
+                player.Play();
 
-                    player.Play(media);
-                }
-
-                if (oldMedia != null) oldMedia.Dispose();
+                oldSource?.Dispose();
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error VLC: {ex.Message}");
+                Debug.WriteLine($"Error MediaPlayer: {ex.Message}");
             }
-        }
-
-        private void ThreadPool_LoopVideo(MediaPlayer? player, string path)
-        {
-            Task.Run(() => {
-                if (player != null && File.Exists(path))
-                {
-                    PlayKioskVideo(player, path, isMuted: player == _backgroundPlayer || player == _mainPlayer);
-                }
-            });
         }
 
         private string GetCurrentMainVideoPath()
@@ -218,7 +205,7 @@ namespace Videoficha.Features.Kiosk.Views
                 string promoPath = GetCurrentPromoVideoPath();
                 if (File.Exists(promoPath))
                 {
-                    _mainPlayer?.Stop();
+                    _mainPlayer?.Pause();
                     
                     PromoGrid.Visibility = Visibility.Visible;
                     MainContentGrid.Visibility = Visibility.Collapsed;
@@ -231,7 +218,7 @@ namespace Videoficha.Features.Kiosk.Views
 
         private void StopPromoVideo()
         {
-            _promoPlayer?.Stop();
+            _promoPlayer?.Pause();
             
             PromoGrid.Visibility = Visibility.Collapsed;
             MainContentGrid.Visibility = Visibility.Visible;
@@ -359,10 +346,13 @@ namespace Videoficha.Features.Kiosk.Views
 
         private void MainWindow_Closed(object sender, WindowEventArgs args)
         {
+            backgroundView.SetMediaPlayer(null);
+            videoView.SetMediaPlayer(null);
+            promoView.SetMediaPlayer(null);
+
             _backgroundPlayer?.Dispose();
             _mainPlayer?.Dispose();
             _promoPlayer?.Dispose();
-            _libVLC?.Dispose();
         }
     }
 }

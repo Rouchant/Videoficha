@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Microsoft.Win32;
+
 using Videoficha.Infrastructure.Services;
 using Videoficha.Models;
 
@@ -118,30 +118,14 @@ namespace Videoficha.Features.Kiosk.ViewModels
             set { _settings.DistributorLogoPath = value; OnPropertyChanged(); }
         }
 
-        public void SelectDistributorLogo()
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Imágenes (*.png;*.jpg;*.svg)|*.png;*.jpg;*.svg";
-            if (openFileDialog.ShowDialog() == true)
-            {
-                DistributorLogoPath = openFileDialog.FileName;
-            }
-        }
+
 
         public void RestoreDefaultLogo()
         {
             DistributorLogoPath = string.Empty;
         }
 
-        public void SelectInactivityVideo()
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Videos (*.mp4;*.wmv;*.avi)|*.mp4;*.wmv;*.avi";
-            if (openFileDialog.ShowDialog() == true)
-            {
-                InactivityVideoPath = openFileDialog.FileName;
-            }
-        }
+
 
         public void RestoreDefaultMainVideo()
         {

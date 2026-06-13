@@ -7,10 +7,10 @@ namespace Videoficha.Shared
     public static class CursorHelper
     {
         public static readonly DependencyProperty CursorProperty =
-            DependencyProperty.RegisterAttached("Cursor", typeof(InputSystemCursorShape?), typeof(CursorHelper), new PropertyMetadata(null, OnCursorChanged));
+            DependencyProperty.RegisterAttached("Cursor", typeof(InputSystemCursorShape), typeof(CursorHelper), new PropertyMetadata(InputSystemCursorShape.Arrow, OnCursorChanged));
 
-        public static InputSystemCursorShape? GetCursor(DependencyObject obj) => (InputSystemCursorShape?)obj.GetValue(CursorProperty);
-        public static void SetCursor(DependencyObject obj, InputSystemCursorShape? value) => obj.SetValue(CursorProperty, value);
+        public static InputSystemCursorShape GetCursor(DependencyObject obj) => (InputSystemCursorShape)obj.GetValue(CursorProperty);
+        public static void SetCursor(DependencyObject obj, InputSystemCursorShape value) => obj.SetValue(CursorProperty, value);
 
         private static void OnCursorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {

@@ -3,50 +3,49 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:vlc="using:LibVLCSharp.Platforms.Windows"
         xmlns:shared="using:Videoficha.Shared"
         mc:Ignorable="d"
         Title="Videoficha">
-    
-    <Window.Resources>
-        <shared:BoolToVisibilityConverter x:Key="BoolToVis" />
-        <shared:BoolToStrikethroughConverter x:Key="BoolToStrike" />
-        
-        <Style x:Key="SpecCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="#1AFFFFFF"/> <!-- Glass effect -->
-            <Setter Property="CornerRadius" Value="0"/>
-            <Setter Property="Margin" Value="0,0,0,12"/>
-            <Setter Property="Padding" Value="15,10"/>
-            <Setter Property="BorderBrush" Value="#2AFFFFFF"/>
-            <Setter Property="BorderThickness" Value="1"/>
-        </Style>
-
-        <Style x:Key="CardIconStyle" TargetType="Image">
-            <Setter Property="Width" Value="40"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Margin" Value="10,0,15,0"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-
-        <Style x:Key="CardLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="#AAA"/>
-            <Setter Property="VerticalAlignment" Value="Bottom"/>
-        </Style>
-
-        <Style x:Key="CardValueStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="VerticalAlignment" Value="Top"/>
-            <Setter Property="TextWrapping" Value="Wrap"/>
-        </Style>
-    </Window.Resources>
 
     <Grid Background="#080808" PointerMoved="OnPointerMoved" KeyDown="OnKeyDown">
+        <Grid.Resources>
+            <shared:BoolToVisibilityConverter x:Key="BoolToVis" />
+            <shared:BoolToStrikethroughConverter x:Key="BoolToStrike" />
+            
+            <Style x:Key="SpecCardStyle" TargetType="Border">
+                <Setter Property="Background" Value="#1AFFFFFF"/> <!-- Glass effect -->
+                <Setter Property="CornerRadius" Value="0"/>
+                <Setter Property="Margin" Value="0,0,0,12"/>
+                <Setter Property="Padding" Value="15,10"/>
+                <Setter Property="BorderBrush" Value="#2AFFFFFF"/>
+                <Setter Property="BorderThickness" Value="1"/>
+            </Style>
+
+            <Style x:Key="CardIconStyle" TargetType="Image">
+                <Setter Property="Width" Value="40"/>
+                <Setter Property="Height" Value="40"/>
+                <Setter Property="Margin" Value="10,0,15,0"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style>
+
+            <Style x:Key="CardLabelStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="11"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="Foreground" Value="#AAA"/>
+                <Setter Property="VerticalAlignment" Value="Bottom"/>
+            </Style>
+
+            <Style x:Key="CardValueStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="16"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="VerticalAlignment" Value="Top"/>
+                <Setter Property="TextWrapping" Value="Wrap"/>
+            </Style>
+        </Grid.Resources>
+
         <!-- Fondo con gradiente para mejorar legibilidad sobre el video -->
-        <vlc:VideoView x:Name="backgroundView" Opacity="0.25" />
+        <MediaPlayerElement x:Name="backgroundView" AreTransportControlsEnabled="False" Opacity="0.25" />
         <Border>
             <Border.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
@@ -148,7 +147,7 @@
                 <Viewbox Grid.Column="1" Margin="40,0,0,0" VerticalAlignment="Center" Stretch="Uniform">
                     <Grid Width="1600" Height="900">
                         <Border CornerRadius="0">
-                            <vlc:VideoView x:Name="videoView" />
+                            <MediaPlayerElement x:Name="videoView" AreTransportControlsEnabled="False" />
                         </Border>
                     </Grid>
                 </Viewbox>
@@ -169,7 +168,7 @@
         </Grid>
 
         <Grid Name="PromoGrid" Visibility="Collapsed" Background="Black" Canvas.ZIndex="999">
-            <vlc:VideoView x:Name="promoView" />
+            <MediaPlayerElement x:Name="promoView" AreTransportControlsEnabled="False" />
         </Grid>
 
         <Button Name="AdminTrigger" Width="100" Height="100" HorizontalAlignment="Right" VerticalAlignment="Top" Opacity="0" Click="AdminTrigger_Click" />
