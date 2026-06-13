@@ -1,9 +1,9 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Threading;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using System.Threading.Tasks;
 using Videoficha.Features.Kiosk.ViewModels;
 using Videoficha.Infrastructure.Services;
@@ -14,6 +14,11 @@ namespace Videoficha.Features.Kiosk.Views
 {
     public partial class MainWindow : Window
     {
+        [DllImport("user32.dll")]
+        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+        private const int SW_MINIMIZE = 6;
+        private const int SW_RESTORE = 9;
+
         [DllImport("kernel32.dll")]
         private static extern uint SetThreadExecutionState(uint esFlags);
         private const uint ES_CONTINUOUS = 0x80000000;
@@ -62,7 +67,7 @@ namespace Videoficha.Features.Kiosk.Views
         private int _adminClickCount = 0;
         private DispatcherTimer _adminClickTimer;
         private DispatcherTimer _inactivityTimer;
-        private Point _lastMousePosition;
+        private Windows.Foundation.Point _lastMousePosition;
         private Window? _returnWindow;
         private bool _isSystemGeneratingInput;
 
@@ -82,6 +87,9 @@ namespace Videoficha.Features.Kiosk.Views
             Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High;
 
             InitializeComponent();
+            
+            // Configurar ventana modo Kiosko (fullscreen + topmost)
+            ConfigureKioskWindow();
             
             // 2. Inicializar LibVLC
             Core.Initialize();
@@ -104,9 +112,15 @@ namespace Videoficha.Features.Kiosk.Views
             var systemProvider = new SystemProvider();
             var configService = new ConfigService();
             _viewModel = new MainViewModel(systemProvider, configService);
-            DataContext = _viewModel;
+            
+            // En WinUI 3 DataContext se asigna al elemento visual raíz
+            if (this.Content is FrameworkElement rootElement)
+            {
+                rootElement.DataContext = _viewModel;
+                rootElement.Loaded += MainWindow_Loaded;
+            }
 
-            this.Loaded += MainWindow_Loaded;
+            this.Closed += MainWindow_Closed;
 
             // Admin Timer
             _adminClickTimer = new DispatcherTimer();
@@ -120,7 +134,20 @@ namespace Videoficha.Features.Kiosk.Views
             _inactivityTimer.Start();
         }
 
-        private async void MainWindow_Loaded(object? sender, RoutedEventArgs e)
+        private void ConfigureKioskWindow()
+        {
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+            var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
+            var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+            
+            // Quitar título y bordes, establecer pantalla completa
+            appWindow.SetPresenter(Microsoft.UI.Windowing.AppWindowPresenterKind.FullScreen);
+            
+            // Forzar Topmost
+            SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+        }
+
+        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED);
             
@@ -140,14 +167,12 @@ namespace Videoficha.Features.Kiosk.Views
 
             try
             {
-                // Limpiar media anterior para evitar fugas de memoria
                 var oldMedia = player.Media;
                 
                 using (var media = new Media(_libVLC, path, FromType.FromPath))
                 {
-                    // 1. Optimizaciones de Kiosko
                     media.AddOption(":file-caching=150"); 
-                    media.AddOption(":hwdec=auto"); // Decodificación por hardware
+                    media.AddOption(":hwdec=auto");
                     if (isMuted) media.AddOption(":no-audio");
 
                     player.Play(media);
@@ -163,7 +188,6 @@ namespace Videoficha.Features.Kiosk.Views
 
         private void ThreadPool_LoopVideo(MediaPlayer? player, string path)
         {
-            // LibVLC EndReached ocurre en un thread distinto
             Task.Run(() => {
                 if (player != null && File.Exists(path))
                 {
@@ -215,22 +239,31 @@ namespace Videoficha.Features.Kiosk.Views
             PlayKioskVideo(_mainPlayer, GetCurrentMainVideoPath(), isMuted: true);
         }
 
-        private void OnUserActivity(object sender, EventArgs e)
+        private void OnPointerMoved(object sender, PointerRoutedEventArgs e)
         {
             if (_isSystemGeneratingInput) return;
 
-            if (e is MouseEventArgs mouseArgs)
-            {
-                Point currentPos = mouseArgs.GetPosition(this);
-                Vector diff = currentPos - _lastMousePosition;
-                
-                // Umbral de 5 píxeles solicitado por el usuario
-                if (Math.Abs(diff.X) < 5 && Math.Abs(diff.Y) < 5) return;
-                
-                _lastMousePosition = currentPos;
-            }
+            var currentPoint = e.GetCurrentPoint(this.Content);
+            var currentPos = currentPoint.Position;
+            
+            double diffX = currentPos.X - _lastMousePosition.X;
+            double diffY = currentPos.Y - _lastMousePosition.Y;
+            
+            if (Math.Abs(diffX) < 5 && Math.Abs(diffY) < 5) return;
+            
+            _lastMousePosition = currentPos;
 
-            // Si hay CUALQUIER actividad (ratón > 5px o Teclado)
+            ResetInactivity();
+        }
+
+        private void OnKeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (_isSystemGeneratingInput) return;
+            ResetInactivity();
+        }
+
+        private void ResetInactivity()
+        {
             if (PromoGrid.Visibility == Visibility.Visible)
             {
                 StopPromoVideo();
@@ -240,35 +273,26 @@ namespace Videoficha.Features.Kiosk.Views
             _inactivityTimer.Start();
         }
 
-        private void InactivityTimer_Tick(object? sender, EventArgs e)
+        private void InactivityTimer_Tick(object? sender, object e)
         {
-            // Verificamos la inactividad global de Windows (independiente de si la app está minimizada)
             int idleTime = GetIdleTimeInSeconds();
-            int threshold = 30; // Volvemos a los 30 segundos estándar
+            int threshold = 30;
 
             if (idleTime >= threshold)
             {
-                // Bloqueamos la detección de actividad para que el ESC no nos quite el video
                 _isSystemGeneratingInput = true;
                 
                 try
                 {
-                    // Simular pulsación de ESC para cerrar Menú Inicio o cualquier popup del sistema
-                    keybd_event(VK_ESCAPE, 0, 0, 0); // Down
-                    keybd_event(VK_ESCAPE, 0, KEYEVENTF_KEYUP, 0); // Up
+                    keybd_event(VK_ESCAPE, 0, 0, 0);
+                    keybd_event(VK_ESCAPE, 0, KEYEVENTF_KEYUP, 0);
 
-                    // Si la ventana no está visiblemente al frente, forzarla
-                    if (this.WindowState == WindowState.Minimized)
-                    {
-                        this.WindowState = WindowState.Maximized;
-                    }
-
-                    // Fuerza bruta para ponerse encima del Menú Inicio y todo lo demás
-                    var helper = new System.Windows.Interop.WindowInteropHelper(this);
-                    SetWindowPos(helper.Handle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+                    var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+                    
+                    ShowWindow(hWnd, SW_RESTORE);
+                    SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
                     
                     this.Activate();
-                    this.Focus();
 
                     if (_returnWindow != null)
                     {
@@ -276,7 +300,6 @@ namespace Videoficha.Features.Kiosk.Views
                         _returnWindow = null;
                     }
 
-                    // Si no se está reproduciendo ya el video de promoción, iniciarlo
                     if (PromoGrid.Visibility != Visibility.Visible)
                     {
                         PlayPromoVideo();
@@ -284,13 +307,10 @@ namespace Videoficha.Features.Kiosk.Views
                 }
                 finally
                 {
-                    // Pequeño retardo para asegurar que el evento de teclado se procese antes de liberar el flag
                     Task.Delay(100).ContinueWith(_ => _isSystemGeneratingInput = false);
                 }
             }
         }
-
-
 
         private void AdminTrigger_Click(object sender, RoutedEventArgs e)
         {
@@ -308,19 +328,24 @@ namespace Videoficha.Features.Kiosk.Views
 
         private void Explore_Click(object sender, RoutedEventArgs e)
         {
-            this.WindowState = WindowState.Minimized;
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+            ShowWindow(hWnd, SW_MINIMIZE);
             
-            _returnWindow?.Close(); // Cerrar si ya existe
+            _returnWindow?.Close();
             _returnWindow = new ReturnWindow(this);
-            _returnWindow.Show();
+            _returnWindow.Activate();
         }
 
-        private void OpenConfig()
+        private async void OpenConfig()
         {
             try
             {
-                FileSelectionWindow configWindow = new FileSelectionWindow { Owner = this };
-                if (configWindow.ShowDialog() == true)
+                var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+                FileSelectionWindow configWindow = new FileSelectionWindow(hWnd);
+                configWindow.XamlRoot = this.Content.XamlRoot;
+                var result = await configWindow.ShowAsync();
+                
+                if (result == ContentDialogResult.Primary)
                 {
                     _viewModel.ReloadSettings();
                     PlayKioskVideo(_mainPlayer, GetCurrentMainVideoPath(), isMuted: true);
@@ -328,13 +353,11 @@ namespace Videoficha.Features.Kiosk.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al recargar la configuración: {ex.Message}", "Error de Configuración", MessageBoxButton.OK, MessageBoxImage.Warning);
+                Debug.WriteLine($"Error al recargar la configuración: {ex.Message}");
             }
         }
 
-
-
-        private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+        private void MainWindow_Closed(object sender, WindowEventArgs args)
         {
             _backgroundPlayer?.Dispose();
             _mainPlayer?.Dispose();

@@ -1,12 +1,13 @@
 using System;
-using System.Windows;
-using System.Windows.Threading;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using Videoficha.Features.SystemDiagnostics.ViewModels;
 using Videoficha.Infrastructure.Services;
 
 namespace Videoficha.Features.SystemDiagnostics.Views
 {
-    public partial class SystemInfoWindow : Window
+    public partial class SystemInfoWindow : ContentDialog
     {
         private readonly SystemInfoViewModel _viewModel;
         private DispatcherTimer? inactivityTimer;
@@ -17,7 +18,7 @@ namespace Videoficha.Features.SystemDiagnostics.Views
             InitializeComponent();
             
             _viewModel = new SystemInfoViewModel(new ConfigService());
-            DataContext = _viewModel;
+            this.DataContext = _viewModel;
 
             InitializeTimer();
         }
@@ -28,26 +29,21 @@ namespace Videoficha.Features.SystemDiagnostics.Views
             inactivityTimer.Interval = TimeSpan.FromMilliseconds(InactivityThreshold);
             inactivityTimer.Tick += InactivityTimer_Tick;
 
-            this.MouseMove += ResetInactivityTimer;
+            this.PointerMoved += ResetInactivityTimer;
             this.KeyDown += ResetInactivityTimer;
 
             inactivityTimer.Start();
         }
 
-        private void ResetInactivityTimer(object? sender, EventArgs e)
+        private void ResetInactivityTimer(object sender, RoutedEventArgs e)
         {
             inactivityTimer?.Stop();
             inactivityTimer?.Start();
         }
 
-        private void InactivityTimer_Tick(object? sender, EventArgs e)
+        private void InactivityTimer_Tick(object? sender, object e)
         {
-            this.Close();
-        }
-
-        private void CloseButton_Click(object? sender, RoutedEventArgs e)
-        {
-            this.Close();
+            this.Hide();
         }
     }
 }

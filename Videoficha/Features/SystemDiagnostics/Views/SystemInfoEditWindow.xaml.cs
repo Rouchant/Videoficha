@@ -1,14 +1,12 @@
 using System;
-using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Threading;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Videoficha.Features.SystemDiagnostics.ViewModels;
 using Videoficha.Infrastructure.Services;
 
 namespace Videoficha.Features.SystemDiagnostics.Views
 {
-    public partial class SystemInfoEditWindow : Window
+    public partial class SystemInfoEditWindow : ContentDialog
     {
         private readonly SystemInfoEditViewModel _viewModel;
         private readonly ISystemProvider _systemProvider;
@@ -21,7 +19,7 @@ namespace Videoficha.Features.SystemDiagnostics.Views
             
             _systemProvider = new SystemProvider();
             _viewModel = new SystemInfoEditViewModel(new ConfigService(), _systemProvider);
-            DataContext = _viewModel;
+            this.DataContext = _viewModel;
 
             InitializeTimer();
         }
@@ -44,23 +42,15 @@ namespace Videoficha.Features.SystemDiagnostics.Views
             inactivityTimer.Start();
         }
 
-        private void InactivityTimer_Tick(object? sender, EventArgs e)
+        private void InactivityTimer_Tick(object? sender, object e)
         {
             inactivityTimer?.Stop();
-            this.Close();
+            this.Hide();
         }
 
-        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        private void SaveButton_Click(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
             _viewModel.Save();
-            DialogResult = true;
-            this.Close();
-        }
-
-        private void CancelButton_Click(object sender, RoutedEventArgs e)
-        {
-            DialogResult = false;
-            this.Close();
         }
     }
 }

@@ -1,9 +1,16 @@
-<Window x:Class="Videoficha.Features.SystemDiagnostics.Views.SystemInfoEditWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Editar Especificaciones" SizeToContent="Height" Width="450" 
-        Background="#121212" WindowStartupLocation="CenterOwner">
-    <Window.Resources>
+<ContentDialog x:Class="Videoficha.Features.SystemDiagnostics.Views.SystemInfoEditWindow"
+               xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+               xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+               mc:Ignorable="d"
+               Title="Editar Especificaciones"
+               PrimaryButtonText="GUARDAR CAMBIOS"
+               CloseButtonText="CANCELAR"
+               PrimaryButtonClick="SaveButton_Click"
+               DefaultButton="Primary">
+
+    <ContentDialog.Resources>
         <Style x:Key="RestoreButtonStyle" TargetType="Button">
             <Setter Property="Content" Value="↺"/>
             <Setter Property="Width" Value="30"/>
@@ -15,64 +22,63 @@
             <Setter Property="BorderBrush" Value="#444"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Cursor" Value="Hand"/>
         </Style>
-    </Window.Resources>
+    </ContentDialog.Resources>
     
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="25">
-            <TextBlock Text="EDITAR ESPECIFICACIONES" Foreground="#0292D8" FontWeight="Bold" Margin="0,0,0,20" HorizontalAlignment="Center"/>
+    <Grid Margin="10" Width="400">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="10">
+                <TextBlock Text="EDITAR ESPECIFICACIONES" Foreground="#0292D8" FontWeight="Bold" Margin="0,0,0,20" HorizontalAlignment="Center"/>
 
-            <TextBlock Text="Modelo" Foreground="#888" Margin="0,10,0,5"/>
-            <Grid>
-                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <TextBox Text="{Binding Model, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
-                <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="Model" Click="RestoreButton_Click"/>
-            </Grid>
+                <TextBlock Text="Modelo" Foreground="#888" Margin="0,10,0,5"/>
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <TextBox Text="{Binding Model, Mode=TwoWay}" Background="#1E1E1E" Foreground="White" BorderBrush="#333"/>
+                    <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="Model" Click="RestoreButton_Click"/>
+                </Grid>
 
-            <TextBlock Text="Procesador" Foreground="#888" Margin="0,10,0,5"/>
-            <Grid>
-                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <TextBox Text="{Binding Processor, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
-                <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="Processor" Click="RestoreButton_Click"/>
-            </Grid>
+                <TextBlock Text="Procesador" Foreground="#888" Margin="0,10,0,5"/>
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <TextBox Text="{Binding Processor, Mode=TwoWay}" Background="#1E1E1E" Foreground="White" BorderBrush="#333"/>
+                    <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="Processor" Click="RestoreButton_Click"/>
+                </Grid>
 
-            <TextBlock Text="Memoria RAM" Foreground="#888" Margin="0,10,0,5"/>
-            <Grid>
-                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <TextBox Text="{Binding RAM, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
-                <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="RAM" Click="RestoreButton_Click"/>
-            </Grid>
+                <TextBlock Text="Memoria RAM" Foreground="#888" Margin="0,10,0,5"/>
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <TextBox Text="{Binding RAM, Mode=TwoWay}" Background="#1E1E1E" Foreground="White" BorderBrush="#333"/>
+                    <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="RAM" Click="RestoreButton_Click"/>
+                </Grid>
 
-            <TextBlock Text="Almacenamiento" Foreground="#888" Margin="0,10,0,5"/>
-            <Grid>
-                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <TextBox Text="{Binding Storage, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
-                <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="Storage" Click="RestoreButton_Click"/>
-            </Grid>
+                <TextBlock Text="Almacenamiento" Foreground="#888" Margin="0,10,0,5"/>
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <TextBox Text="{Binding Storage, Mode=TwoWay}" Background="#1E1E1E" Foreground="White" BorderBrush="#333"/>
+                    <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="Storage" Click="RestoreButton_Click"/>
+                </Grid>
 
-            <TextBlock Text="Pantalla" Foreground="#888" Margin="0,10,0,5"/>
-            <Grid>
-                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <TextBox Text="{Binding Display, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
-                <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="Display" Click="RestoreButton_Click"/>
-            </Grid>
+                <TextBlock Text="Pantalla" Foreground="#888" Margin="0,10,0,5"/>
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <TextBox Text="{Binding Display, Mode=TwoWay}" Background="#1E1E1E" Foreground="White" BorderBrush="#333"/>
+                    <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="Display" Click="RestoreButton_Click"/>
+                </Grid>
 
-            <TextBlock Text="Gráficos" Foreground="#888" Margin="0,10,0,5"/>
-            <Grid>
-                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <TextBox Text="{Binding Graphics, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
-                <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="Graphics" Click="RestoreButton_Click"/>
-            </Grid>
+                <TextBlock Text="Gráficos" Foreground="#888" Margin="0,10,0,5"/>
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <TextBox Text="{Binding Graphics, Mode=TwoWay}" Background="#1E1E1E" Foreground="White" BorderBrush="#333"/>
+                    <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="Graphics" Click="RestoreButton_Click"/>
+                </Grid>
 
-            <TextBlock Text="Sistema" Foreground="#888" Margin="0,10,0,5"/>
-            <Grid>
-                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <TextBox Text="{Binding OS, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="5"/>
-                <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="OS" Click="RestoreButton_Click"/>
-            </Grid>
-
-            <Button Content="GUARDAR CAMBIOS" Click="SaveButton_Click" Margin="0,30,0,0" Padding="12" Background="#0292D8" Foreground="White" FontWeight="Bold" BorderThickness="0" Cursor="Hand"/>
-        </StackPanel>
-    </ScrollViewer>
-</Window>
+                <TextBlock Text="Sistema" Foreground="#888" Margin="0,10,0,5"/>
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <TextBox Text="{Binding OS, Mode=TwoWay}" Background="#1E1E1E" Foreground="White" BorderBrush="#333"/>
+                    <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="OS" Click="RestoreButton_Click"/>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</ContentDialog>

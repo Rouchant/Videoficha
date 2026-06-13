@@ -1,38 +1,80 @@
 using System;
-using System.Windows;
-using Microsoft.Win32;
+using System.Diagnostics;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Videoficha.Features.Kiosk.ViewModels;
 using Videoficha.Infrastructure.Services;
-using System.Windows.Controls;
 
 namespace Videoficha.Features.Kiosk.Views
 {
-    public partial class FileSelectionWindow : Window
+    public partial class FileSelectionWindow : ContentDialog
     {
         private readonly FileSelectionViewModel _viewModel;
+        private readonly IntPtr _parentHwnd;
 
         public string? VideoFilePath { get; private set; }
 
-        public FileSelectionWindow()
+        public FileSelectionWindow() : this(IntPtr.Zero) { }
+
+        public FileSelectionWindow(IntPtr parentHwnd)
         {
             InitializeComponent();
+            _parentHwnd = parentHwnd;
             _viewModel = new FileSelectionViewModel(new ConfigService(), new SystemProvider());
-            DataContext = _viewModel;
+            this.DataContext = _viewModel;
         }
 
-        private void SelectVideoButton_Click(object sender, RoutedEventArgs e)
+        private async void SelectVideoButton_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Videos (*.mp4;*.wmv;*.avi)|*.mp4;*.wmv;*.avi";
-            if (openFileDialog.ShowDialog() == true)
+            try
             {
-                _viewModel.VideoPath = openFileDialog.FileName;
+                var picker = new Windows.Storage.Pickers.FileOpenPicker();
+                picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.List;
+                picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.VideosLibrary;
+                picker.FileTypeFilter.Add(".mp4");
+                picker.FileTypeFilter.Add(".wmv");
+                picker.FileTypeFilter.Add(".avi");
+
+                var hwnd = _parentHwnd != IntPtr.Zero ? _parentHwnd : Process.GetCurrentProcess().MainWindowHandle;
+                WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+                var file = await picker.PickSingleFileAsync();
+                if (file != null)
+                {
+                    _viewModel.VideoPath = file.Path;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error al abrir el selector de video: {ex.Message}");
             }
         }
 
-        private void SelectLogoButton_Click(object sender, RoutedEventArgs e)
+        private async void SelectLogoButton_Click(object sender, RoutedEventArgs e)
         {
-            _viewModel.SelectDistributorLogo();
+            try
+            {
+                var picker = new Windows.Storage.Pickers.FileOpenPicker();
+                picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail;
+                picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.PicturesLibrary;
+                picker.FileTypeFilter.Add(".png");
+                picker.FileTypeFilter.Add(".jpg");
+                picker.FileTypeFilter.Add(".jpeg");
+                picker.FileTypeFilter.Add(".svg");
+
+                var hwnd = _parentHwnd != IntPtr.Zero ? _parentHwnd : Process.GetCurrentProcess().MainWindowHandle;
+                WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+                var file = await picker.PickSingleFileAsync();
+                if (file != null)
+                {
+                    _viewModel.DistributorLogoPath = file.Path;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error al abrir el selector de logo: {ex.Message}");
+            }
         }
 
         private async void RestoreButton_Click(object sender, RoutedEventArgs e)
@@ -45,9 +87,30 @@ namespace Videoficha.Features.Kiosk.Views
             }
         }
 
-        private void SelectInactivityVideoButton_Click(object sender, RoutedEventArgs e)
+        private async void SelectInactivityVideoButton_Click(object sender, RoutedEventArgs e)
         {
-            _viewModel.SelectInactivityVideo();
+            try
+            {
+                var picker = new Windows.Storage.Pickers.FileOpenPicker();
+                picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.List;
+                picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.VideosLibrary;
+                picker.FileTypeFilter.Add(".mp4");
+                picker.FileTypeFilter.Add(".wmv");
+                picker.FileTypeFilter.Add(".avi");
+
+                var hwnd = _parentHwnd != IntPtr.Zero ? _parentHwnd : Process.GetCurrentProcess().MainWindowHandle;
+                WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+                var file = await picker.PickSingleFileAsync();
+                if (file != null)
+                {
+                    _viewModel.InactivityVideoPath = file.Path;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error al abrir el selector de video de inactividad: {ex.Message}");
+            }
         }
 
         private void RestoreMainVideoButton_Click(object sender, RoutedEventArgs e)
@@ -65,18 +128,15 @@ namespace Videoficha.Features.Kiosk.Views
             _viewModel.RestoreDefaultLogo();
         }
 
-        private void OkButton_Click(object sender, RoutedEventArgs e)
+        private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
             _viewModel.Save();
             VideoFilePath = _viewModel.VideoPath;
-            DialogResult = true;
-            Close();
         }
 
-        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        private void ContentDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            DialogResult = false;
-            Close();
+            // Close is handled automatically
         }
     }
 }

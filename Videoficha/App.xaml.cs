@@ -1,10 +1,6 @@
+using Microsoft.UI.Xaml;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows;
+using Videoficha.Features.Kiosk.Views;
 
 namespace Videoficha
 {
@@ -13,11 +9,17 @@ namespace Videoficha
     /// </summary>
     public partial class App : Application
     {
-        protected override void OnStartup(StartupEventArgs e)
+        private Window? m_window;
+
+        public App()
         {
-            // Forzar renderizado por software para evitar videos negros en VMs
-            System.Windows.Media.RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.SoftwareOnly;
-            base.OnStartup(e);
+            this.InitializeComponent();
+        }
+
+        protected override void OnLaunched(LaunchActivatedEventArgs args)
+        {
+            m_window = new MainWindow();
+            m_window.Activate();
         }
     }
 }

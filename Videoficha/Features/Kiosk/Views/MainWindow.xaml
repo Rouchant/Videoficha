@@ -1,16 +1,16 @@
 <Window x:Class="Videoficha.Features.Kiosk.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.expression/blend/2008"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:vlc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
+        xmlns:vlc="using:LibVLCSharp.Platforms.Windows"
+        xmlns:shared="using:Videoficha.Shared"
         mc:Ignorable="d"
-        Title="Videoficha" WindowStyle="None" WindowState="Maximized" ResizeMode="NoResize" Topmost="True"
-        Background="#080808" PreviewMouseMove="OnUserActivity" PreviewKeyDown="OnUserActivity" Closing="MainWindow_Closing"
-        SnapsToDevicePixels="True" UseLayoutRounding="True">
+        Title="Videoficha">
     
     <Window.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <shared:BoolToVisibilityConverter x:Key="BoolToVis" />
+        <shared:BoolToStrikethroughConverter x:Key="BoolToStrike" />
         
         <Style x:Key="SpecCardStyle" TargetType="Border">
             <Setter Property="Background" Value="#1AFFFFFF"/> <!-- Glass effect -->
@@ -19,9 +19,6 @@
             <Setter Property="Padding" Value="15,10"/>
             <Setter Property="BorderBrush" Value="#2AFFFFFF"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Effect">
-                <Setter.Value><DropShadowEffect BlurRadius="15" ShadowDepth="0" Opacity="0.2"/></Setter.Value>
-            </Setter>
         </Style>
 
         <Style x:Key="CardIconStyle" TargetType="Image">
@@ -29,8 +26,6 @@
             <Setter Property="Height" Value="40"/>
             <Setter Property="Margin" Value="10,0,15,0"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="RenderOptions.BitmapScalingMode" Value="HighQuality"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 
         <Style x:Key="CardLabelStyle" TargetType="TextBlock">
@@ -38,7 +33,6 @@
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="#AAA"/>
             <Setter Property="VerticalAlignment" Value="Bottom"/>
-            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
         </Style>
 
         <Style x:Key="CardValueStyle" TargetType="TextBlock">
@@ -50,7 +44,7 @@
         </Style>
     </Window.Resources>
 
-    <Grid>
+    <Grid Background="#080808" PointerMoved="OnPointerMoved" KeyDown="OnKeyDown">
         <!-- Fondo con gradiente para mejorar legibilidad sobre el video -->
         <vlc:VideoView x:Name="backgroundView" Opacity="0.25" />
         <Border>
@@ -64,16 +58,18 @@
         </Border>
 
         <Grid x:Name="MainContentGrid" Margin="50,40">
-            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
             <!-- HEADER -->
             <Grid Grid.Row="0" Margin="0,0,0,30">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                    <Image Source="{Binding ManufacturerLogo}" Height="50" Width="Auto" Margin="0,0,25,0" Stretch="Uniform"
-                           RenderOptions.BitmapScalingMode="HighQuality" SnapsToDevicePixels="True"/>
-                    <Image Source="{Binding DistributorLogo}" Height="50" Width="Auto" Stretch="Uniform" Opacity="0.8"
-                           Visibility="{Binding Settings.ShowDistributorLogo, Converter={StaticResource BoolToVis}}"
-                           RenderOptions.BitmapScalingMode="HighQuality" SnapsToDevicePixels="True"/>
+                    <Image Source="{Binding ManufacturerLogo}" Height="50" Width="120" Margin="0,0,25,0" Stretch="Uniform"/>
+                    <Image Source="{Binding DistributorLogo}" Height="50" Width="120" Stretch="Uniform" Opacity="0.8"
+                           Visibility="{Binding Settings.ShowDistributorLogo, Converter={StaticResource BoolToVis}}"/>
                 </StackPanel>
 
                 <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center">
@@ -104,7 +100,7 @@
                         <Border Style="{StaticResource SpecCardStyle}">
                             <Grid>
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                <Image Source="/Assets/Images/ui/ram.png" Style="{StaticResource CardIconStyle}"/>
+                                <Image Source="ms-appx:///Assets/Images/ui/ram.png" Style="{StaticResource CardIconStyle}"/>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                     <TextBlock Text="MEMORIA RAM" Style="{StaticResource CardLabelStyle}"/><TextBlock Text="{Binding SystemSpec.RAM}" Style="{StaticResource CardValueStyle}"/>
                                 </StackPanel>
@@ -113,7 +109,7 @@
                         <Border Style="{StaticResource SpecCardStyle}">
                             <Grid>
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                <Image Source="/Assets/Images/ui/storage.png" Style="{StaticResource CardIconStyle}"/>
+                                <Image Source="ms-appx:///Assets/Images/ui/storage.png" Style="{StaticResource CardIconStyle}"/>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                     <TextBlock Text="ALMACENAMIENTO" Style="{StaticResource CardLabelStyle}"/><TextBlock Text="{Binding SystemSpec.Storage}" Style="{StaticResource CardValueStyle}"/>
                                 </StackPanel>
@@ -122,7 +118,7 @@
                         <Border Style="{StaticResource SpecCardStyle}">
                             <Grid>
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                <Image Source="/Assets/Images/ui/screen.png" Style="{StaticResource CardIconStyle}"/>
+                                <Image Source="ms-appx:///Assets/Images/ui/screen.png" Style="{StaticResource CardIconStyle}"/>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                     <TextBlock Text="PANTALLA" Style="{StaticResource CardLabelStyle}"/><TextBlock Text="{Binding SystemSpec.Display}" Style="{StaticResource CardValueStyle}"/>
                                 </StackPanel>
@@ -131,7 +127,7 @@
                         <Border Style="{StaticResource SpecCardStyle}">
                             <Grid>
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                <Image Source="/Assets/Images/ui/gpu.png" Style="{StaticResource CardIconStyle}"/>
+                                <Image Source="ms-appx:///Assets/Images/ui/gpu.png" Style="{StaticResource CardIconStyle}"/>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                     <TextBlock Text="GRÁFICOS" Style="{StaticResource CardLabelStyle}"/><TextBlock Text="{Binding SystemSpec.Graphics}" Style="{StaticResource CardValueStyle}"/>
                                 </StackPanel>
@@ -140,7 +136,7 @@
                         <Border Style="{StaticResource SpecCardStyle}">
                             <Grid>
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                <Image Source="/Assets/Images/ui/windows-11.png" Style="{StaticResource CardIconStyle}"/>
+                                <Image Source="ms-appx:///Assets/Images/ui/windows-11.png" Style="{StaticResource CardIconStyle}"/>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                     <TextBlock Text="SISTEMA OPERATIVO" Style="{StaticResource CardLabelStyle}"/><TextBlock Text="{Binding SystemSpec.OS}" Style="{StaticResource CardValueStyle}"/>
                                 </StackPanel>
@@ -151,8 +147,7 @@
 
                 <Viewbox Grid.Column="1" Margin="40,0,0,0" VerticalAlignment="Center" Stretch="Uniform">
                     <Grid Width="1600" Height="900">
-                        <Border CornerRadius="0" ClipToBounds="True">
-                            <Border.Effect><DropShadowEffect BlurRadius="40" ShadowDepth="0" Opacity="0.4" Color="Black"/></Border.Effect>
+                        <Border CornerRadius="0">
                             <vlc:VideoView x:Name="videoView" />
                         </Border>
                     </Grid>
@@ -161,32 +156,22 @@
 
             <!-- FOOTER -->
             <Grid Grid.Row="2" Margin="0,40,0,0">
-                <Button HorizontalAlignment="Left" Width="240" Height="80" Background="{Binding Settings.AccentColor}" BorderThickness="0" Click="Explore_Click">
-                    <Button.Resources><Style TargetType="Border"><Setter Property="CornerRadius" Value="0"/></Style></Button.Resources>
+                <Button HorizontalAlignment="Left" Width="240" Height="80" Background="{Binding Settings.AccentColor}" BorderThickness="0" CornerRadius="0" Click="Explore_Click">
                     <TextBlock Text="{Binding Settings.CTAText}" Foreground="Black" FontSize="22" FontWeight="ExtraBold"/>
                 </Button>
 
                 <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Visibility="{Binding Settings.ShowPrice, Converter={StaticResource BoolToVis}}">
-                    <TextBlock Text="{Binding Settings.ListPrice}" Foreground="#AAA" FontSize="28" FontWeight="Bold" TextAlignment="Right">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Settings.StrikethroughListPrice}" Value="True">
-                                        <Setter Property="TextDecorations" Value="Strikethrough"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
+                    <TextBlock Text="{Binding Settings.ListPrice}" Foreground="#AAA" FontSize="28" FontWeight="Bold" TextAlignment="Right"
+                               TextDecorations="{Binding Settings.StrikethroughListPrice, Converter={StaticResource BoolToStrike}}"/>
                     <TextBlock Text="{Binding Settings.PromoPrice}" Foreground="{Binding Settings.AccentColor}" FontSize="52" FontWeight="ExtraBold" TextAlignment="Right" Margin="0,-5,0,0"/>
                 </StackPanel>
             </Grid>
         </Grid>
 
-        <Grid Name="PromoGrid" Visibility="Collapsed" Background="Black" Panel.ZIndex="999" Cursor="None">
+        <Grid Name="PromoGrid" Visibility="Collapsed" Background="Black" Canvas.ZIndex="999">
             <vlc:VideoView x:Name="promoView" />
         </Grid>
 
-        <Button Name="AdminTrigger" Width="100" Height="100" HorizontalAlignment="Right" VerticalAlignment="Top" Opacity="0" Cursor="Arrow" Click="AdminTrigger_Click" />
+        <Button Name="AdminTrigger" Width="100" Height="100" HorizontalAlignment="Right" VerticalAlignment="Top" Opacity="0" Click="AdminTrigger_Click" />
     </Grid>
 </Window>

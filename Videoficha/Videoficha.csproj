@@ -1,51 +1,31 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net8.0-windows</TargetFramework>
+        <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+        <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
         <Nullable>enable</Nullable>
-        <UseWPF>true</UseWPF>
+        <UseWinUI>true</UseWinUI>
         <RootNamespace>Videoficha</RootNamespace>
         <ApplicationIcon>Assets\Images\icon.ico</ApplicationIcon>
+        
+        <!-- Configuración de Kiosko Unpackaged -->
+        <WindowsPackageType>None</WindowsPackageType>
+        <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+        <Platforms>x64;x86;ARM64</Platforms>
+        <RuntimeIdentifiers>win-x64;win-x86;win-arm64</RuntimeIdentifiers>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="LibVLCSharp.WPF" Version="3.9.7.1" />
-      <PackageReference Include="Microsoft.Windows.Compatibility" Version="9.0.0-rc.2.24474.4" />
-      <PackageReference Include="System.Management" Version="9.0.0-rc.2.24473.5" />
-      <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.23.1" />
+        <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.251106002" />
+        <PackageReference Include="LibVLCSharp" Version="3.9.7" />
+        <PackageReference Include="Microsoft.Windows.Compatibility" Version="9.0.0" />
+        <PackageReference Include="System.Management" Version="9.0.0" />
+        <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.23.1" />
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="Assets\Fonts\FormaDJRDisplay-Regular.ttf" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Content Include="Assets\Samples\background-generic.mp4">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="Assets\Samples\landing-generic.mp4">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="Assets\Samples\promo-generic.mp4">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-
-      <None Remove="Assets\Fonts\FormaDJRMicro-Bold.ttf" />
-      <Resource Include="Assets\Fonts\FormaDJRMicro-Bold.ttf">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Resource>
-      <None Remove="Assets\Fonts\FormaDJRMicro-Regular.ttf" />
-      <Resource Include="Assets\Fonts\FormaDJRMicro-Regular.ttf">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Resource>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Content Include="Assets\Images\icon.ico">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Resource Include="Assets\Images\**\*.png">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Resource>
+        <Content Include="Assets\**\*.*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 </Project>

@@ -1,191 +1,187 @@
-<Window x:Class="Videoficha.Features.Kiosk.Views.FileSelectionWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Panel de Administración" Height="750" Width="950" 
-        Background="#121212" Foreground="White" WindowStartupLocation="CenterOwner" WindowStyle="ToolWindow">
-    
-    <Grid Margin="30">
+<ContentDialog x:Class="Videoficha.Features.Kiosk.Views.FileSelectionWindow"
+               xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+               xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+               xmlns:shared="using:Videoficha.Shared"
+               mc:Ignorable="d"
+               Title="Panel de Administración"
+               PrimaryButtonText="GUARDAR Y APLICAR"
+               CloseButtonText="CANCELAR"
+               PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+               CloseButtonClick="ContentDialog_CloseButtonClick"
+               DefaultButton="Primary">
+
+    <ContentDialog.Resources>
+        <shared:BoolToVisibilityConverter x:Key="BoolToVis" />
+        
+        <Style x:Key="RestoreButtonStyle" TargetType="Button">
+            <Setter Property="Content" Value="↺"/>
+            <Setter Property="Width" Value="35"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Margin" Value="10,0,0,0"/>
+            <Setter Property="Background" Value="#222"/>
+            <Setter Property="Foreground" Value="#0292D8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#444"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </ContentDialog.Resources>
+
+    <Grid Margin="10" Width="800" Height="500">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Text="ADMINISTRACIÓN PRO" FontSize="20" FontWeight="Bold" Foreground="#0292D8" Margin="0,0,0,30" HorizontalAlignment="Center"/>
+        <TextBlock Text="ADMINISTRACIÓN PRO" FontSize="20" FontWeight="Bold" Foreground="#0292D8" Margin="0,0,0,15" HorizontalAlignment="Center"/>
 
-        <TabControl Grid.Row="1" Background="Transparent" BorderThickness="0,1,0,0" BorderBrush="#333">
-            <TabControl.Resources>
-                <Style TargetType="TabItem">
-                    <Setter Property="Background" Value="Transparent"/><Setter Property="Foreground" Value="#888"/><Setter Property="Padding" Value="25,12"/><Setter Property="FontSize" Value="13"/><Setter Property="FontWeight" Value="Bold"/>
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="TabItem">
-                                <Border Name="Border" BorderThickness="0,0,0,3" BorderBrush="Transparent" Padding="{TemplateBinding Padding}"><ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                                <ControlTemplate.Triggers><Trigger Property="IsSelected" Value="True"><Setter TargetName="Border" Property="BorderBrush" Value="#0292D8"/><Setter Property="Foreground" Value="White"/></Trigger></ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-                
-                <Style x:Key="RestoreButtonStyle" TargetType="Button">
-                    <Setter Property="Content" Value="↺"/>
-                    <Setter Property="Width" Value="35"/>
-                    <Setter Property="Height" Value="30"/>
-                    <Setter Property="Margin" Value="10,0,0,0"/>
-                    <Setter Property="Background" Value="#222"/>
-                    <Setter Property="Foreground" Value="#0292D8"/>
-                    <Setter Property="BorderThickness" Value="1"/>
-                    <Setter Property="BorderBrush" Value="#444"/>
-                    <Setter Property="FontWeight" Value="Bold"/>
-                    <Setter Property="VerticalAlignment" Value="Center"/>
-                    <Setter Property="Cursor" Value="Hand"/>
-                </Style>
-            </TabControl.Resources>
-
-            <TabItem Header="TIENDA">
-                <StackPanel Margin="0,20">
-                    <TextBlock Text="CÓDIGO SKU" Foreground="#888" FontSize="10" Margin="0,0,0,5"/>
-                    <TextBox Text="{Binding SKU}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="10" Margin="0,0,0,15"/>
-                    <CheckBox Content="Mostrar SKU en pantalla" IsChecked="{Binding ShowSKU}" Foreground="#888" Margin="0,0,0,12"/>
-                    <CheckBox Content="Mostrar PRECIO en pantalla" IsChecked="{Binding ShowPrice}" Foreground="#888" Margin="0,0,0,12"/>
-                    <CheckBox Content="Tachar precio de lista" IsChecked="{Binding StrikethroughListPrice}" Foreground="#888" Margin="0,0,0,25"/>
-
-                    <Grid>
-                        <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0" Margin="0,0,15,0">
-                            <TextBlock Text="PRECIO DE LISTA" Foreground="#888" FontSize="10" Margin="0,0,0,5"/>
-                            <TextBox Text="{Binding ListPrice}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="10"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="1" Margin="15,0,0,0">
-                            <TextBlock Text="PRECIO OFERTA" Foreground="#888" FontSize="10" Margin="0,0,0,5"/>
-                            <TextBox Text="{Binding PromoPrice}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="10"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <TextBlock Text="TEXTO BOTÓN CTA" Foreground="#888" FontSize="10" Margin="0,25,0,5"/>
-                    <TextBox Text="{Binding CTAText}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="10"/>
-                </StackPanel>
-            </TabItem>
-
-            <TabItem Header="HARDWARE">
+        <Pivot Grid.Row="1">
+            <PivotItem Header="TIENDA">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <Grid Margin="0,20">
+                    <StackPanel Margin="0,15">
+                        <TextBlock Text="CÓDIGO SKU" Foreground="#888" FontSize="11" Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding SKU, Mode=TwoWay}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Margin="0,0,0,15"/>
+                        <CheckBox Content="Mostrar SKU en pantalla" IsChecked="{Binding ShowSKU, Mode=TwoWay}" Foreground="#888" Margin="0,0,0,12"/>
+                        <CheckBox Content="Mostrar PRECIO en pantalla" IsChecked="{Binding ShowPrice, Mode=TwoWay}" Foreground="#888" Margin="0,0,0,12"/>
+                        <CheckBox Content="Tachar precio de lista" IsChecked="{Binding StrikethroughListPrice, Mode=TwoWay}" Foreground="#888" Margin="0,0,0,25"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,15,0">
+                                <TextBlock Text="PRECIO DE LISTA" Foreground="#888" FontSize="11" Margin="0,0,0,5"/>
+                                <TextBox Text="{Binding ListPrice, Mode=TwoWay}" Background="#1E1E1E" Foreground="White" BorderBrush="#333"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="15,0,0,0">
+                                <TextBlock Text="PRECIO OFERTA" Foreground="#888" FontSize="11" Margin="0,0,0,5"/>
+                                <TextBox Text="{Binding PromoPrice, Mode=TwoWay}" Background="#1E1E1E" Foreground="White" BorderBrush="#333"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Text="TEXTO BOTÓN CTA" Foreground="#888" FontSize="11" Margin="0,25,0,5"/>
+                        <TextBox Text="{Binding CTAText, Mode=TwoWay}" Background="#1E1E1E" Foreground="White" BorderBrush="#333"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </PivotItem>
+
+            <PivotItem Header="HARDWARE">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <Grid Margin="0,15">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="40"/> <!-- Separador -->
+                            <ColumnDefinition Width="30"/> <!-- Separador -->
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         
                         <!-- Columna Izquierda -->
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="MODELO" Foreground="#888" FontSize="10" Margin="0,0,0,5"/>
+                            <TextBlock Text="MODELO" Foreground="#888" FontSize="11" Margin="0,0,0,5"/>
                             <Grid Margin="0,0,0,20">
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                <TextBox Text="{Binding Model, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="10"/>
+                                <TextBox Text="{Binding Model, Mode=TwoWay}" Background="#1E1E1E" Foreground="White" BorderBrush="#333"/>
                                 <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="Model" Click="RestoreButton_Click"/>
                             </Grid>
 
-                            <TextBlock Text="PROCESADOR" Foreground="#888" FontSize="10" Margin="0,0,0,5"/>
+                            <TextBlock Text="PROCESADOR" Foreground="#888" FontSize="11" Margin="0,0,0,5"/>
                             <Grid Margin="0,0,0,20">
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                <TextBox Text="{Binding Processor, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="10"/>
+                                <TextBox Text="{Binding Processor, Mode=TwoWay}" Background="#1E1E1E" Foreground="White" BorderBrush="#333"/>
                                 <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="Processor" Click="RestoreButton_Click"/>
                             </Grid>
 
-                            <TextBlock Text="MEMORIA RAM" Foreground="#888" FontSize="10" Margin="0,0,0,5"/>
+                            <TextBlock Text="MEMORIA RAM" Foreground="#888" FontSize="11" Margin="0,0,0,5"/>
                             <Grid Margin="0,0,0,20">
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                <TextBox Text="{Binding RAM, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="10"/>
+                                <TextBox Text="{Binding RAM, Mode=TwoWay}" Background="#1E1E1E" Foreground="White" BorderBrush="#333"/>
                                 <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="RAM" Click="RestoreButton_Click"/>
                             </Grid>
 
-                            <TextBlock Text="ALMACENAMIENTO" Foreground="#888" FontSize="10" Margin="0,0,0,5"/>
+                            <TextBlock Text="ALMACENAMIENTO" Foreground="#888" FontSize="11" Margin="0,0,0,5"/>
                             <Grid Margin="0,0,0,20">
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                <TextBox Text="{Binding Storage, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="10"/>
+                                <TextBox Text="{Binding Storage, Mode=TwoWay}" Background="#1E1E1E" Foreground="White" BorderBrush="#333"/>
                                 <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="Storage" Click="RestoreButton_Click"/>
                             </Grid>
                         </StackPanel>
 
                         <!-- Columna Derecha -->
                         <StackPanel Grid.Column="2">
-                            <TextBlock Text="PANTALLA" Foreground="#888" FontSize="10" Margin="0,0,0,5"/>
+                            <TextBlock Text="PANTALLA" Foreground="#888" FontSize="11" Margin="0,0,0,5"/>
                             <Grid Margin="0,0,0,20">
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                <TextBox Text="{Binding Display, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="10"/>
+                                <TextBox Text="{Binding Display, Mode=TwoWay}" Background="#1E1E1E" Foreground="White" BorderBrush="#333"/>
                                 <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="Display" Click="RestoreButton_Click"/>
                             </Grid>
 
-                            <TextBlock Text="GRÁFICOS" Foreground="#888" FontSize="10" Margin="0,0,0,5"/>
+                            <TextBlock Text="GRÁFICOS" Foreground="#888" FontSize="11" Margin="0,0,0,5"/>
                             <Grid Margin="0,0,0,20">
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                <TextBox Text="{Binding Graphics, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="10"/>
+                                <TextBox Text="{Binding Graphics, Mode=TwoWay}" Background="#1E1E1E" Foreground="White" BorderBrush="#333"/>
                                 <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="Graphics" Click="RestoreButton_Click"/>
                             </Grid>
 
-                            <TextBlock Text="SISTEMA" Foreground="#888" FontSize="10" Margin="0,0,0,5"/>
+                            <TextBlock Text="SISTEMA" Foreground="#888" FontSize="11" Margin="0,0,0,5"/>
                             <Grid Margin="0,0,0,20">
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                <TextBox Text="{Binding OS, UpdateSourceTrigger=PropertyChanged}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="10"/>
+                                <TextBox Text="{Binding OS, Mode=TwoWay}" Background="#1E1E1E" Foreground="White" BorderBrush="#333"/>
                                 <Button Grid.Column="1" Style="{StaticResource RestoreButtonStyle}" Tag="OS" Click="RestoreButton_Click"/>
                             </Grid>
                         </StackPanel>
                     </Grid>
                 </ScrollViewer>
-            </TabItem>
+            </PivotItem>
 
-            <TabItem Header="BRANDING">
-                <StackPanel Margin="0,20">
-                    <CheckBox Content="Mostrar logo de distribuidor" IsChecked="{Binding ShowDistributorLogo}" Foreground="#888" Margin="0,0,0,20"/>
-                    
-                    <TextBlock Text="LOGO DISTRIBUIDOR" Foreground="#888" FontSize="10" Margin="0,0,0,5"/>
-                    <Grid Margin="0,0,0,20">
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                        <TextBox Text="{Binding DistributorLogoPath}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="10" IsReadOnly="True"/>
-                        <Button Grid.Column="1" Content="..." Click="SelectLogoButton_Click" Width="50" Background="#333" BorderThickness="0" Margin="5,0,0,0"/>
-                        <Button Grid.Column="2" Style="{StaticResource RestoreButtonStyle}" Click="RestoreLogoButton_Click" ToolTip="Restaurar por defecto"/>
-                    </Grid>
-                    <TextBlock Text="COLOR DE RESALTE (TEMAS)" Foreground="#888" FontSize="10" Margin="0,20,0,5"/>
-                    <ComboBox ItemsSource="{Binding AccentThemes}" SelectedValue="{Binding AccentColor}" SelectedValuePath="Hex" Background="#1E1E1E" BorderBrush="#333" Padding="5">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <Border Width="20" Height="20" Background="{Binding Hex}" Margin="0,0,10,0" CornerRadius="10"/>
-                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Foreground="Black" FontWeight="Bold"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
-                    
-                    <TextBlock Text="El logo del Fabricante (Acer, HP, Asus, etc.) se detecta automáticamente según el hardware del equipo." Foreground="#666" FontSize="10" TextWrapping="Wrap" Margin="0,25,0,0"/>
-                </StackPanel>
-            </TabItem>
+            <PivotItem Header="BRANDING">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="0,15">
+                        <CheckBox Content="Mostrar logo de distribuidor" IsChecked="{Binding ShowDistributorLogo, Mode=TwoWay}" Foreground="#888" Margin="0,0,0,20"/>
+                        
+                        <TextBlock Text="LOGO DISTRIBUIDOR" Foreground="#888" FontSize="11" Margin="0,0,0,5"/>
+                        <Grid Margin="0,0,0,20">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBox Text="{Binding DistributorLogoPath, Mode=OneWay}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" IsReadOnly="True"/>
+                            <Button Grid.Column="1" Content="..." Click="SelectLogoButton_Click" Width="50" Background="#333" BorderThickness="0" Margin="5,0,0,0"/>
+                            <Button Grid.Column="2" Style="{StaticResource RestoreButtonStyle}" Click="RestoreLogoButton_Click"/>
+                        </Grid>
+                        <TextBlock Text="COLOR DE RESALTE (TEMAS)" Foreground="#888" FontSize="11" Margin="0,20,0,5"/>
+                        <ComboBox ItemsSource="{Binding AccentThemes}" SelectedValue="{Binding AccentColor, Mode=TwoWay}" SelectedValuePath="Hex" Background="#1E1E1E" BorderBrush="#333" HorizontalAlignment="Stretch">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border Width="20" Height="20" Background="{Binding Hex}" Margin="0,0,10,0" CornerRadius="10"/>
+                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Foreground="White" FontWeight="Bold"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        
+                        <TextBlock Text="El logo del Fabricante (Acer, HP, Asus, etc.) se detecta automáticamente según el hardware del equipo." Foreground="#666" FontSize="11" TextWrapping="Wrap" Margin="0,25,0,0"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </PivotItem>
 
-            <TabItem Header="VISUAL">
-                <StackPanel Margin="0,20">
-                    <TextBlock Text="VIDEO PRINCIPAL (INTERACTIVO)" Foreground="#888" FontSize="10" Margin="0,0,0,5"/>
-                    <Grid Margin="0,0,0,20">
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                        <TextBox Text="{Binding VideoPath}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="10" IsReadOnly="True"/>
-                        <Button Grid.Column="1" Content="..." Click="SelectVideoButton_Click" Width="50" Background="#333" BorderThickness="0" Margin="5,0,0,0"/>
-                        <Button Grid.Column="2" Style="{StaticResource RestoreButtonStyle}" Click="RestoreMainVideoButton_Click" ToolTip="Restaurar por defecto"/>
-                    </Grid>
+            <PivotItem Header="VISUAL">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="0,15">
+                        <TextBlock Text="VIDEO PRINCIPAL (INTERACTIVO)" Foreground="#888" FontSize="11" Margin="0,0,0,5"/>
+                        <Grid Margin="0,0,0,20">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBox Text="{Binding VideoPath, Mode=OneWay}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" IsReadOnly="True"/>
+                            <Button Grid.Column="1" Content="..." Click="SelectVideoButton_Click" Width="50" Background="#333" BorderThickness="0" Margin="5,0,0,0"/>
+                            <Button Grid.Column="2" Style="{StaticResource RestoreButtonStyle}" Click="RestoreMainVideoButton_Click"/>
+                        </Grid>
 
-                    <TextBlock Text="VIDEO DE INACTIVIDAD (ATTRACT LOOP)" Foreground="#888" FontSize="10" Margin="0,20,0,5"/>
-                    <Grid Margin="0,0,0,20">
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                        <TextBox Text="{Binding InactivityVideoPath}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" Padding="10" IsReadOnly="True"/>
-                        <Button Grid.Column="1" Content="..." Click="SelectInactivityVideoButton_Click" Width="50" Background="#333" BorderThickness="0" Margin="5,0,0,0"/>
-                        <Button Grid.Column="2" Style="{StaticResource RestoreButtonStyle}" Click="RestoreInactivityVideoButton_Click" ToolTip="Restaurar por defecto"/>
-                    </Grid>
-                </StackPanel>
-            </TabItem>
-        </TabControl>
-
-        <Grid Grid.Row="2" Margin="0,30,0,0">
-            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-            <Button Content="GUARDAR Y APLICAR" Click="OkButton_Click" Grid.Column="0" Height="50" Width="220" HorizontalAlignment="Left" Background="#0292D8" Foreground="White" FontWeight="Bold" BorderThickness="0" Cursor="Hand"/>
-            <Button Content="CANCELAR" Click="CancelButton_Click" Grid.Column="1" Height="50" Width="220" HorizontalAlignment="Right" Background="#333" Foreground="#AAA" FontWeight="Bold" BorderThickness="0" Cursor="Hand"/>
-        </Grid>
+                        <TextBlock Text="VIDEO DE INACTIVIDAD (ATTRACT LOOP)" Foreground="#888" FontSize="11" Margin="0,20,0,5"/>
+                        <Grid Margin="0,0,0,20">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBox Text="{Binding InactivityVideoPath, Mode=OneWay}" Background="#1E1E1E" Foreground="White" BorderBrush="#333" IsReadOnly="True"/>
+                            <Button Grid.Column="1" Content="..." Click="SelectInactivityVideoButton_Click" Width="50" Background="#333" BorderThickness="0" Margin="5,0,0,0"/>
+                            <Button Grid.Column="2" Style="{StaticResource RestoreButtonStyle}" Click="RestoreInactivityVideoButton_Click"/>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+            </PivotItem>
+        </Pivot>
     </Grid>
-</Window>
+</ContentDialog>
